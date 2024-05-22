@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure;
+namespace Healthcare.Infrastructure;
 
 public static class DependencyInjection
 {
