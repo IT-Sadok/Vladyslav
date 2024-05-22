@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Application;
+namespace Healthcare.Application;
 
 public static class DependencyInjection
 {
