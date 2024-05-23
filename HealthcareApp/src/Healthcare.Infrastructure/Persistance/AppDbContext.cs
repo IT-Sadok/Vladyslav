@@ -7,8 +7,8 @@ public class AppDbContext : DbContext
 {
     internal DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        optionsBuilder.UseSqlServer("server=localhost;Database=healthcare;uid=SA;pwd=VeryStr0ngP@ssw0rd;TrustServerCertificate=true");
+        
     }
 }

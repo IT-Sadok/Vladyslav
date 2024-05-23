@@ -1,6 +1,5 @@
 using Healthcare.Application;
 using Healthcare.Infrastructure;
-using Healthcare.Presentation;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +13,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services
 .AddApplication()
-.AddInfrastructure()
-.AddPresentation();
+.AddInfrastructure(builder.Configuration);
 
 builder.Host.UseSerilog((context, conf) =>
     conf.ReadFrom.Configuration(context.Configuration));
@@ -34,6 +32,7 @@ app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapControllers();
 
