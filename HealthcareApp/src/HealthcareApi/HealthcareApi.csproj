@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Healthcare.Application\Application.csproj" />
     <ProjectReference Include="..\Healthcare.Infrastructure\Infrastructure.csproj" />
-    <ProjectReference Include="..\Healthcare.Presentation\Presentation.csproj" />
   </ItemGroup>
 
 </Project>
