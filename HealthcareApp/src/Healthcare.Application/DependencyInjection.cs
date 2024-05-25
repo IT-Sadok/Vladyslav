@@ -1,3 +1,4 @@
+using Application.DTOs;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,7 @@ public static class DependencyInjection
             conf.RegisterServicesFromAssembly(assembly));
 
         services.AddValidatorsFromAssembly(assembly);
-
+        
         return services;
     }
 }

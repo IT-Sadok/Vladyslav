@@ -1,5 +1,6 @@
 using Healthcare.Application;
 using Healthcare.Infrastructure;
+using Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

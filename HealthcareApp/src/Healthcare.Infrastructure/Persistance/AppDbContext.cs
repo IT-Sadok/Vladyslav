@@ -1,14 +1,21 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using Healthcare.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Healthcare.Infrastructure.Persistance;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
-    internal DbSet<User> Users { get; set; }
-
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        
     }
+}
+
+public class ApplicationUser : IdentityUser
+{
+    [Required]
+    public string FirstName { get; set; }
+    [Required]
+    public string LastName { get; set; } 
 }

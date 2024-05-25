@@ -1,5 +1,5 @@
-using Healthcare.Application.Contracts;
-using Healthcare.Application.DTOs;
+using Application.Abstractions;
+using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthcareApi.Controllers;
@@ -7,20 +7,31 @@ namespace HealthcareApi.Controllers;
 [Route("api")]
 public class AuthController : Controller
 {
-    private readonly IUser user;
-    public AuthController(IUser user) => this.user = user;
+    private readonly IUserAuthenticationService _userAuthenticationService;
+
+    public AuthController(IUserAuthenticationService userAuthenticationService) =>
+        this._userAuthenticationService = userAuthenticationService;
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponse>> Login( [FromBody] LoginUserDTO loginUserDTO)
+    public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDTO)
     {
-        var result = await user.LoginUserAsync(loginUserDTO);
-        return Ok(result);
+        var token = await _userAuthenticationService.LoginAsync(loginUserDTO);
+        if (token == null) return Unauthorized("Login failed");
+        
+        return Ok(token);
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<RegisterResponse>> Register( [FromBody] RegisterUserDTO registerUserDTO)
+    public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDTO)
     {
-        var result = await user.RegisterUserAsync(registerUserDTO);
-        return Ok(result);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var result = await _userAuthenticationService.RegisterAsync(registerUserDTO);
+        if (result.Succeeded) return Ok();
+        
+        return BadRequest(result.Errors);
     }
 }

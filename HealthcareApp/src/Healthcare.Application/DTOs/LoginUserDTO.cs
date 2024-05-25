@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Healthcare.Application.DTOs;
+namespace Application.DTOs;
 
 public class LoginUserDTO
 {

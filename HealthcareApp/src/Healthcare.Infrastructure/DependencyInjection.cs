@@ -1,13 +1,15 @@
 using System.Text;
-using Healthcare.Application.Contracts;
-using Healthcare.Infrastructure.Repository;
+using Application.Abstractions;
+using Healthcare.Infrastructure.Persistance;
+using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Healthcare.Infrastructure;
+namespace Infrastructure;
 
 public static class DependencyInjection
 {
@@ -15,9 +17,16 @@ public static class DependencyInjection
     {
         var connection = configuration.GetConnectionString("HealthcareDb");
 
-        services.AddDbContext<Persistance.AppDbContext>(
-         options => options.UseSqlServer(connection, b => b.MigrationsAssembly("HealthcareApi"))
+        services.AddDbContext<AppDbContext>(
+            options => options.UseSqlServer(connection, b => b.MigrationsAssembly("HealthcareApi"))
         );
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.AllowedUserNameCharacters = "";
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
 
         services.AddAuthentication(options =>
         {
@@ -36,8 +45,8 @@ public static class DependencyInjection
             };
         });
 
-        services.AddScoped<IUser, UserRepository>();
-        
+        services.AddScoped<IUserAuthenticationService, AuthenticationService>();
+
         return services;
     }
 }
