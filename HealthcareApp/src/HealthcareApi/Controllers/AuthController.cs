@@ -1,5 +1,6 @@
 using Application.Abstractions;
-using Application.DTOs;
+using Application.DTOs.Login;
+using Application.DTOs.Register;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthcareApi.Controllers;
@@ -13,23 +14,24 @@ public class AuthController : Controller
         this._userAuthenticationService = userAuthenticationService;
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDTO)
+    public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDto)
     {
-        var token = await _userAuthenticationService.LoginAsync(loginUserDTO);
-        if (token == null) return Unauthorized("Login failed");
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         
-        return Ok(token);
+        var result = await _userAuthenticationService.LoginAsync(loginUserDto);
+        if (string.IsNullOrEmpty(result)) return Unauthorized("Login failed");
+        
+        return Ok(result);
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDTO)
+    public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDto)
     {
         if (!ModelState.IsValid)
-        {
             return BadRequest(ModelState);
-        }
         
-        var result = await _userAuthenticationService.RegisterAsync(registerUserDTO);
+        var result = await _userAuthenticationService.RegisterAsync(registerUserDto);
         if (result.Succeeded) return Ok();
         
         return BadRequest(result.Errors);
