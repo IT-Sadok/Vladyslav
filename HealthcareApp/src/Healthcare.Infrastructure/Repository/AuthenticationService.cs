@@ -2,7 +2,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Application.Abstractions;
-using Application.DTOs;
+using Application.DTOs.Login;
+using Application.DTOs.Register;
 using Healthcare.Infrastructure.Persistance;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -57,24 +58,25 @@ namespace Infrastructure.Repository
         {
             var result =
                 await _signInManager.PasswordSignInAsync(loginUserDto.Email, loginUserDto.Password, false, false);
-            if (!result.Succeeded) return null;
-
+            if (!result.Succeeded) return "";
+            
             var user = await _userManager.FindByEmailAsync(loginUserDto.Email);
-            var token = await GenerateJwtToken(user!);
+            var token = await GenerateJwtToken(user ?? new ApplicationUser());
+            
             return token;
         }
 
         private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
-            var userRoles = await _userManager.GetRolesAsync(user!);
+            var userRoles = await _userManager.GetRolesAsync(user);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? ""));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var userClaims = new List<Claim>
             {
-                new Claim("FirstName", user.FirstName!),
-                new Claim("LastName", user.LastName!),
-                new Claim("Email", user.Email!)
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName),
+                new Claim("Email", user.Email ?? "")
             };
 
             foreach (var role in userRoles)

@@ -1,8 +1,9 @@
+using Application.DTOs.Register;
 using FluentValidation;
 
-namespace Application.DTOs;
+namespace Application.DTOs.Register;
 
-public class RegisterUserDTOValidator: AbstractValidator<RegisterUserDTO>
+public class RegisterUserDTOValidator : AbstractValidator<RegisterUserDTO>
 {
     public RegisterUserDTOValidator()
     {

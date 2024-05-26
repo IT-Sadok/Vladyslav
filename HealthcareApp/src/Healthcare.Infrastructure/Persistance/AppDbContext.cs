@@ -14,8 +14,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
 public class ApplicationUser : IdentityUser
 {
-    [Required]
-    public string FirstName { get; set; }
-    [Required]
+    public string FirstName { get; set; } 
     public string LastName { get; set; } 
 }

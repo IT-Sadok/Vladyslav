@@ -1,27 +1,32 @@
+using Application.DTOs.Login;
+using Application.DTOs.Register;
+using FluentValidation;
 using Healthcare.Application;
-using Healthcare.Infrastructure;
+using FluentValidation.AspNetCore;
 using Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssembly(typeof(RegisterUserDTOValidator).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(LoginUserDTOValidator).Assembly);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-.AddApplication()
-.AddInfrastructure(builder.Configuration);
+    .AddApplication()
+    .AddInfrastructure(builder.Configuration);
 
 builder.Host.UseSerilog((context, conf) =>
     conf.ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
