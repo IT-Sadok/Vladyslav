@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Application.Abstractions.Decorators;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ public class RoleManagerDecorator<TRole> : IRoleManagerDecorator<TRole> where TR
         _roleManager = roleManager;
     }
 
-    public Task<bool> RoleExistsAsync(string roleName) => _roleManager.RoleExistsAsync(roleName);
-    public Task<IdentityResult> CreateAsync(TRole role) => _roleManager.CreateAsync(role);
+    public async Task<bool> RoleExistsAsync(string roleName) => await _roleManager.RoleExistsAsync(roleName);
+    public async Task<IdentityResult> CreateAsync(TRole role) => await _roleManager.CreateAsync(role);
     public async Task<List<TRole>> GetExistingRolesAsync() => await _roleManager.Roles.ToListAsync();
 }

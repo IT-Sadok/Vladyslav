@@ -11,7 +11,7 @@ public class AuthController : Controller
     private readonly IUserAuthenticationService _userAuthenticationService;
 
     public AuthController(IUserAuthenticationService userAuthenticationService) =>
-        this._userAuthenticationService = userAuthenticationService;
+        _userAuthenticationService = userAuthenticationService;
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDto)
