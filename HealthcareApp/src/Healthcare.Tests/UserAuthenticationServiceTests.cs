@@ -1,40 +1,38 @@
 using Application.Abstractions;
+using Application.Abstractions.Decorators;
 using Application.DTOs.Login;
 using Moq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Application.DTOs.Register;
-using Healthcare.Infrastructure.Persistance;
+using Domain.Entities;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Http;
+using Xunit;
 
 
 namespace Healthcare.Tests;
 
 public class UserAuthenticationServiceTests
 {
-    private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
-    private readonly Mock<SignInManager<ApplicationUser>> _signInManagerMock;
-    private readonly Mock<RoleManager<IdentityRole>> _roleManagerMock;
+    private readonly Mock<IUserManagerDecorator<ApplicationUser>> _userManagerMock;
+    private readonly Mock<ISignInManagerDecorator<ApplicationUser>> _signInManagerMock;
+    private readonly Mock<IRoleManagerDecorator<IdentityRole>> _roleManagerMock;
     private readonly Mock<ITokenGeneratorService> _generatorService;
     private readonly AuthenticationService _authService;
 
     public UserAuthenticationServiceTests()
     {
-        _userManagerMock = new Mock<UserManager<ApplicationUser>>(
-            Mock.Of<IUserStore<ApplicationUser>>(), null, null, null, null, null, null, null, null);
-
-        _signInManagerMock = new Mock<SignInManager<ApplicationUser>>(
-            _userManagerMock.Object, Mock.Of<IHttpContextAccessor>(),
-            Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(), null, null, null, null);
-
-        _roleManagerMock = new Mock<RoleManager<IdentityRole>>(
-            Mock.Of<IRoleStore<IdentityRole>>(), null, null, null, null);
-
+        _userManagerMock = new Mock<IUserManagerDecorator<ApplicationUser>>();
+        _signInManagerMock = new Mock<ISignInManagerDecorator<ApplicationUser>>();
+        _roleManagerMock = new Mock<IRoleManagerDecorator<IdentityRole>>();
         _generatorService = new Mock<ITokenGeneratorService>();
-        
-        _authService = new AuthenticationService(_userManagerMock.Object, _signInManagerMock.Object,
-             _roleManagerMock.Object, _generatorService.Object);
+
+        _authService = new AuthenticationService(
+            _userManagerMock.Object,
+            _signInManagerMock.Object, 
+            _roleManagerMock.Object, 
+            _generatorService.Object);
     }
 
     [Fact]
@@ -42,14 +40,7 @@ public class UserAuthenticationServiceTests
     {
         // Arrange
 
-        var registerUserDto = new RegisterUserDTO
-        {
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "email@gmail.com",
-            Password = "123Pass",
-            Role = "Patient"
-        };
+        var registerUserDto = new RegisterUserDTO("John", "Doe", "email@gmail.com", "123Pass", "Patient");
 
         _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), registerUserDto.Password))
             .ReturnsAsync(IdentityResult.Success);
@@ -74,30 +65,25 @@ public class UserAuthenticationServiceTests
     public async Task RegisterAsync_ShouldReturnFailedResult_WhenUserCreationFails()
     {
         // Arrange
-        var registerDto = new RegisterUserDTO
-        {
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john.doe@example.com",
-            Password = "Password123",
-            Role = "User"
-        };
+        var registerUserDto = new RegisterUserDTO("John", "Doe", "email@gmail.com", "123Pass", "Patient");
 
-        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), registerDto.Password))
+
+        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), registerUserDto.Password))
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Registration failed!" }));
-        
+
         // Act
-        var result = await _authService.RegisterAsync(registerDto);
+        var result = await _authService.RegisterAsync(registerUserDto);
 
         // Assert
         result.Succeeded.Should().BeFalse();
     }
-    
+
     [Fact]
     public async Task LoginAsync_ShouldReturnToken_WhenLoginIsSuccessful()
     {
         // Arrange
-        var loginDto = new LoginUserDTO { Email = "john.doe@example.com", Password = "Password123" };
+        var loginDto = new LoginUserDTO("john.doe@example.com", "Password123");
+        var userRoles = new List<string> { "Patient" }; 
         var user = new ApplicationUser { Email = loginDto.Email };
         var expectedToken = "fake-jwt-token";
 
@@ -107,7 +93,10 @@ public class UserAuthenticationServiceTests
         _userManagerMock.Setup(x => x.FindByEmailAsync(loginDto.Email))
             .ReturnsAsync(user);
 
-        _generatorService.Setup(x => x.GenerateJwtToken(It.IsAny<LoginUserDTO>()))
+        _userManagerMock.Setup(x => x.GetRolesAsync(user))
+            .ReturnsAsync(userRoles);
+        
+        _generatorService.Setup(x => x.GenerateJwtToken(user, userRoles))
             .ReturnsAsync(expectedToken);
 
         // Act
@@ -121,7 +110,7 @@ public class UserAuthenticationServiceTests
     public async Task LoginAsync_ShouldReturnEmptyString_WhenLoginFails()
     {
         // Arrange
-        var loginDto = new LoginUserDTO { Email = "john.doe@example.com", Password = "wrong-password" };
+        var loginDto = new LoginUserDTO("john.doe@example.com", "Password123");
 
         _signInManagerMock.Setup(x => x.PasswordSignInAsync(loginDto.Email, loginDto.Password, false, false))
             .ReturnsAsync(SignInResult.Failed);

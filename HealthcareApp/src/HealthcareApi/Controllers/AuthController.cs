@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthcareApi.Controllers;
 
-[Route("api")]
+[Route("api/[controller]")]
 public class AuthController : Controller
 {
     private readonly IUserAuthenticationService _userAuthenticationService;
@@ -16,9 +16,6 @@ public class AuthController : Controller
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUserDTO loginUserDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var result = await _userAuthenticationService.LoginAsync(loginUserDto);
         if (string.IsNullOrEmpty(result)) return Unauthorized("Login failed");
         
@@ -28,9 +25,6 @@ public class AuthController : Controller
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserDTO registerUserDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
         var result = await _userAuthenticationService.RegisterAsync(registerUserDto);
         if (result.Succeeded) return Ok();
         

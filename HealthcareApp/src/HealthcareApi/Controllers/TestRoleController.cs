@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthcareApi.Controllers;
 
-[Route("api")]
+[Route("api/[controller]")]
 public class TestRoleController : Controller
 {
-    [HttpGet("test")]
+    [HttpGet]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public IActionResult Test() => Ok("You are logged in!");
 
-    [HttpGet("test/patient")]
+    [HttpGet("patient")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Patient")]
     public IActionResult TestPatient() => Ok("You are logged as a patient!");
 
-    [HttpGet("test/doctor")]
+    [HttpGet("doctor")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Doctor")]
 
     public IActionResult TestDoctor() => Ok("You are logged as a doctor!");
