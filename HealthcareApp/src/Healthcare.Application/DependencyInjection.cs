@@ -1,4 +1,6 @@
-using Application.DTOs.Register;
+using Application.Abstractions;
+using Application.Implementations;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Healthcare.Application;
@@ -7,10 +9,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        var assembly = typeof(RegisterUserDTOValidator).Assembly; 
-        services.AddMediatR(conf =>
-            conf.RegisterServicesFromAssembly(assembly));
+        services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyReference>();
         
+        services.AddScoped<IUserAuthenticationService, AuthenticationService>();
+
         return services;
     }
 }

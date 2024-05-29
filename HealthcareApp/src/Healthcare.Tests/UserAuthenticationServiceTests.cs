@@ -5,10 +5,8 @@ using Moq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Application.DTOs.Register;
+using Application.Implementations;
 using Domain.Entities;
-using Infrastructure.Repository;
-using Microsoft.AspNetCore.Http;
-using Xunit;
 
 
 namespace Healthcare.Tests;

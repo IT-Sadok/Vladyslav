@@ -50,7 +50,6 @@ public static class DependencyInjection
             };
         });
 
-        services.AddScoped<IUserAuthenticationService, AuthenticationService>();
         services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
         services.AddScoped<IUserManagerDecorator<ApplicationUser>, UserManagerDecorator<ApplicationUser>>();
         services.AddScoped<ISignInManagerDecorator<ApplicationUser>, SignInManagerDecorator<ApplicationUser>>();
