@@ -1,8 +1,13 @@
+using System.Collections.Immutable;
 using System.Text;
 using Application.Abstractions;
+using Application.Abstractions.Decorators;
+using Domain.Entities;
 using Healthcare.Infrastructure.Persistance;
+using Infrastructure.Configuration;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +23,7 @@ public static class DependencyInjection
         var connection = configuration.GetConnectionString("HealthcareDb");
 
         services.AddDbContext<AppDbContext>(
-            options => options.UseSqlServer(connection, b => b.MigrationsAssembly("HealthcareApi"))
+            options => options.UseSqlServer(connection)
         );
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -41,11 +46,18 @@ public static class DependencyInjection
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = configuration["Jwt:Issuer"],
                 ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"] ?? ""))
             };
         });
 
         services.AddScoped<IUserAuthenticationService, AuthenticationService>();
+        services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
+        services.AddScoped<IUserManagerDecorator<ApplicationUser>, UserManagerDecorator<ApplicationUser>>();
+        services.AddScoped<ISignInManagerDecorator<ApplicationUser>, SignInManagerDecorator<ApplicationUser>>();
+        services.AddScoped<IRoleManagerDecorator<IdentityRole>, RoleManagerDecorator<IdentityRole>>();
+
+        
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.Jwt));
 
         return services;
     }

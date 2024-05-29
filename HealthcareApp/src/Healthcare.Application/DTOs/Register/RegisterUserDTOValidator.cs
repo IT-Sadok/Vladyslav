@@ -1,5 +1,5 @@
-using Application.DTOs.Register;
 using FluentValidation;
+using Domain.Constants;
 
 namespace Application.DTOs.Register;
 
@@ -9,12 +9,12 @@ public class RegisterUserDTOValidator : AbstractValidator<RegisterUserDTO>
     {
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("First Name cannot be empty.")
-            .Matches(@"^[a-zA-Z]+$").WithMessage("First Name can only contain letters.")
+            .Matches(RegExConstants.OnlyLettersValidationRegEx).WithMessage("First Name can only contain letters.")
             .MaximumLength(50).WithMessage("First Name cannot be longer than 50 characters.");
 
         RuleFor(x => x.LastName)
             .NotEmpty().WithMessage("Last Name cannot be empty.")
-            .Matches(@"^[a-zA-Z]+$").WithMessage("Last Name can only contain letters.")
+            .Matches(RegExConstants.OnlyLettersValidationRegEx).WithMessage("Last Name can only contain letters.")
             .MaximumLength(50).WithMessage("Last Name cannot be longer than 50 characters.");
 
         RuleFor(x => x.Email)

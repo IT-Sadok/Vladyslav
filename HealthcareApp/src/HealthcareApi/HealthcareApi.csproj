@@ -17,12 +17,18 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.2-dev-00338" />
+    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Shared" Version="1.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Healthcare.Application\Application.csproj" />
     <ProjectReference Include="..\Healthcare.Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="WeatherForecast.cs" />
+    <Compile Remove="Controllers\TestController.cs" />
   </ItemGroup>
 
 </Project>

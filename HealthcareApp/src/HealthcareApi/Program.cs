@@ -1,19 +1,17 @@
-using Application.DTOs.Login;
 using Application.DTOs.Register;
 using FluentValidation;
 using Healthcare.Application;
 using FluentValidation.AspNetCore;
+using HealthcareApi.Filters;
 using Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => { options.Filters.Add<ValidationFilter>(); });
 
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDTOValidator>();
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssembly(typeof(RegisterUserDTOValidator).Assembly);
-builder.Services.AddValidatorsFromAssembly(typeof(LoginUserDTOValidator).Assembly);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

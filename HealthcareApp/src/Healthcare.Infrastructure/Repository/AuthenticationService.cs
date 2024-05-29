@@ -1,38 +1,42 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Application.Abstractions;
+using Application.Abstractions.Decorators;
 using Application.DTOs.Login;
 using Application.DTOs.Register;
-using Healthcare.Infrastructure.Persistance;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using static Domain.Constants.UserRolesConstants;
 
 namespace Infrastructure.Repository
 {
     public class AuthenticationService : IUserAuthenticationService
 
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IConfiguration _configuration;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUserManagerDecorator<ApplicationUser> _userManager;
+        private readonly ISignInManagerDecorator<ApplicationUser> _signInManager;
+        private readonly IRoleManagerDecorator<IdentityRole> _roleManager;
+        private readonly ITokenGeneratorService _generatorService;
 
-        public AuthenticationService(UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration,
-            RoleManager<IdentityRole> roleManager)
+
+        public AuthenticationService(IUserManagerDecorator<ApplicationUser> userManager,
+            ISignInManagerDecorator<ApplicationUser> signInManager,
+            IRoleManagerDecorator<IdentityRole> roleManager, ITokenGeneratorService generatorService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _configuration = configuration;
             _roleManager = roleManager;
+            _generatorService = generatorService;
         }
-
-
+        
         public async Task<IdentityResult> RegisterAsync(RegisterUserDTO registerUserDto)
         {
+            if(!IsRoleAllowed(registerUserDto.Role))
+            {
+                string description = $"Invalid role. Allowed roles are: ";
+                foreach (var role in AllowedRoles)
+                    description += $"{role} ";
+                
+                return IdentityResult.Failed(new IdentityError { Description = description });
+            }
             var user = new ApplicationUser
             {
                 FirstName = registerUserDto.FirstName,
@@ -43,56 +47,26 @@ namespace Infrastructure.Repository
             var result = await _userManager.CreateAsync(user, registerUserDto.Password);
 
             var userRole = registerUserDto.Role;
-            if (result.Succeeded)
-            {
-                if (!await _roleManager.RoleExistsAsync(userRole))
-                    await _roleManager.CreateAsync(new IdentityRole(userRole));
+            if (!result.Succeeded) return result;
 
-                await _userManager.AddToRoleAsync(user, registerUserDto.Role);
-            }
+            await _userManager.AddToRoleAsync(user, registerUserDto.Role);
 
             return result;
         }
 
         public async Task<string> LoginAsync(LoginUserDTO loginUserDto)
         {
+            var user = await _userManager.FindByEmailAsync(loginUserDto.Email);
+            
             var result =
                 await _signInManager.PasswordSignInAsync(loginUserDto.Email, loginUserDto.Password, false, false);
-            if (!result.Succeeded) return "";
+            if (!result.Succeeded) return string.Empty;
             
-            var user = await _userManager.FindByEmailAsync(loginUserDto.Email);
-            var token = await GenerateJwtToken(user ?? new ApplicationUser());
+            var userRoles = await _userManager.GetRolesAsync(user ?? new ApplicationUser());
+            
+            var token = await _generatorService.GenerateJwtToken(user ?? new ApplicationUser(), userRoles.ToList());
             
             return token;
-        }
-
-        private async Task<string> GenerateJwtToken(ApplicationUser user)
-        {
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? ""));
-            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var userClaims = new List<Claim>
-            {
-                new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName),
-                new Claim("Email", user.Email ?? "")
-            };
-
-            foreach (var role in userRoles)
-            {
-                userClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: userClaims,
-                expires: DateTime.Now.AddHours(1),
-                signingCredentials: credentials
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

@@ -1,4 +1,3 @@
-using Application.DTOs;
 using Application.DTOs.Login;
 using Application.DTOs.Register;
 using Microsoft.AspNetCore.Identity;
