@@ -10,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(options => { options.Filters.Add<ValidationFilter>(); });
 
-builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDTOValidator>();
 builder.Services.AddFluentValidationAutoValidation();
 
 builder.Services.AddEndpointsApiExplorer();
