@@ -28,8 +28,6 @@
 
   <ItemGroup>
     <Compile Remove="WeatherForecast.cs" />
-    <Compile Remove="Controllers\TestController.cs" />
-    <Compile Remove="Controllers\TestRoleController.cs" />
   </ItemGroup>
 
 </Project>
