@@ -30,8 +30,7 @@ public class AuthenticationService : IUserAuthenticationService
     {
         if (!IsRoleAllowed(registerUserDto.Role))
         {
-            string description = $"Invalid role. Allowed roles are: ";
-            description += string.Join(' ', AllowedRoles);
+            string description = $"Invalid role. Allowed roles are: {string.Join(' ', AllowedRoles)}";
 
             return IdentityResult.Failed(new IdentityError { Description = description });
         }

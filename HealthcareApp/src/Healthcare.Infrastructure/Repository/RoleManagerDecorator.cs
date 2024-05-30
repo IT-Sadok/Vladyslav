@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Application.Abstractions.Decorators;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
