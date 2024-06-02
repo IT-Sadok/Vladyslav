@@ -18,9 +18,12 @@ public class UserAuthenticationServiceTests
     private readonly Mock<IRoleManagerDecorator<IdentityRole>> _roleManagerMock;
     private readonly Mock<ITokenGeneratorService> _generatorService;
     private readonly AuthenticationService _authService;
+    private readonly IScheduleRepository _scheduleRepository;
 
-    public UserAuthenticationServiceTests()
+
+    public UserAuthenticationServiceTests(IScheduleRepository scheduleRepository)
     {
+        _scheduleRepository = scheduleRepository;
         _userManagerMock = new Mock<IUserManagerDecorator<ApplicationUser>>();
         _signInManagerMock = new Mock<ISignInManagerDecorator<ApplicationUser>>();
         _roleManagerMock = new Mock<IRoleManagerDecorator<IdentityRole>>();
@@ -30,7 +33,8 @@ public class UserAuthenticationServiceTests
             _userManagerMock.Object,
             _signInManagerMock.Object, 
             _roleManagerMock.Object, 
-            _generatorService.Object);
+            _generatorService.Object,
+            _scheduleRepository);
     }
 
     [Fact]

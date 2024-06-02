@@ -26,17 +26,6 @@
     <ProjectReference Include="..\Healthcare.Domain\Domain.csproj" />
     <ProjectReference Include="..\Healthcare.Application\Application.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Migrations\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Remove="Migrations\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Migrations\**" />
-  </ItemGroup>
+  
 
 </Project>

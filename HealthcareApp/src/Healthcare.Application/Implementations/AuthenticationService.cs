@@ -2,6 +2,7 @@ using Application.Abstractions;
 using Application.Abstractions.Decorators;
 using Application.DTOs.Login;
 using Application.DTOs.Register;
+using Domain.Constants;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using static Domain.Constants.UserRolesConstants;
@@ -14,16 +15,19 @@ public class AuthenticationService : IUserAuthenticationService
     private readonly ISignInManagerDecorator<ApplicationUser> _signInManager;
     private readonly IRoleManagerDecorator<IdentityRole> _roleManager;
     private readonly ITokenGeneratorService _generatorService;
+    private readonly IScheduleRepository _scheduleRepository;
+
 
 
     public AuthenticationService(IUserManagerDecorator<ApplicationUser> userManager,
         ISignInManagerDecorator<ApplicationUser> signInManager,
-        IRoleManagerDecorator<IdentityRole> roleManager, ITokenGeneratorService generatorService)
+        IRoleManagerDecorator<IdentityRole> roleManager, ITokenGeneratorService generatorService, IScheduleRepository scheduleRepository)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _roleManager = roleManager;
         _generatorService = generatorService;
+        _scheduleRepository = scheduleRepository;
     }
 
     public async Task<IdentityResult> RegisterAsync(RegisterUserDTO registerUserDto)
@@ -37,6 +41,7 @@ public class AuthenticationService : IUserAuthenticationService
 
         var user = new ApplicationUser
         {
+            Id = Guid.NewGuid().ToString(),
             FirstName = registerUserDto.FirstName,
             LastName = registerUserDto.LastName,
             Email = registerUserDto.Email,
@@ -48,6 +53,9 @@ public class AuthenticationService : IUserAuthenticationService
         if (!result.Succeeded) return result;
 
         await _userManager.AddToRoleAsync(user, registerUserDto.Role);
+
+        if (registerUserDto.Role == "Doctor")
+           await _scheduleRepository.CreateDefaultWorkingScheduleAsync(user.Id);
 
         return result;
     }

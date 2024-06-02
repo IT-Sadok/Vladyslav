@@ -1,3 +1,4 @@
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace Application.Abstractions.Decorators;
@@ -8,4 +9,6 @@ public interface IUserManagerDecorator<TUser> where TUser : class
     Task<TUser> FindByEmailAsync(string email);
     Task<IList<string>> GetRolesAsync(TUser user);
     Task<IdentityResult> AddToRoleAsync(TUser user, string role);
+    Task<IQueryable<TUser>> GetAllUsersAsync();
+
 }

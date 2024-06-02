@@ -1,5 +1,7 @@
 using Application.Abstractions.Decorators;
+using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
@@ -16,4 +18,6 @@ public class UserManagerDecorator<TUser> : IUserManagerDecorator<TUser> where TU
     public Task<TUser> FindByEmailAsync(string email) => _userManager.FindByEmailAsync(email);
     public Task<IList<string>> GetRolesAsync(TUser user) => _userManager.GetRolesAsync(user);
     public Task<IdentityResult> AddToRoleAsync(TUser user, string role) => _userManager.AddToRoleAsync(user, role);
+
+    public async Task<IQueryable<TUser>> GetAllUsersAsync() =>  _userManager.Users;
 }
