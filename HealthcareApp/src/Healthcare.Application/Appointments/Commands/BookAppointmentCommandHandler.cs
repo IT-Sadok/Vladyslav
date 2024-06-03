@@ -3,6 +3,7 @@ using Application.Abstractions.Decorators;
 using Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using static Domain.Constants.AppointmentStatusConstants;
 
 namespace Healthcare.Application.Appointments.Commands;
 
@@ -47,10 +48,11 @@ public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentComm
             PatientId = request.PatientId.ToString(),
             AppointmentDate = request.AppointmentDate.Date,
             StartTime = request.StartTime,
-            EndTime = endTime
+            EndTime = endTime,
+            Status = Requested.ToString()
         };
 
-        await _appointmentRepository.CreateAppiontmentAsync(appointment);
+        await _appointmentRepository.RequestAppointmentAsync(appointment);
 
         return true;
     }

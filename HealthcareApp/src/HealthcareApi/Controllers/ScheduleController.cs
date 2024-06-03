@@ -1,4 +1,4 @@
-using Healthcare.Application.Schedules.Querries.AvailableTimeSlots;
+using Healthcare.Application.Schedules.Queries.AvailableTimeSlots;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
