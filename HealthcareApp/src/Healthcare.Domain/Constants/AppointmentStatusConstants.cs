@@ -3,6 +3,7 @@ namespace Domain.Constants;
 public enum AppointmentStatusConstants
 {
     Requested,
-    Accepted,
+    Submitted,
+    Rejected,
     Completed
 }

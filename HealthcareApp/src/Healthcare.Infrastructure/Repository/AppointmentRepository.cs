@@ -26,4 +26,40 @@ public class AppointmentRepository : IAppointmentRepository
             
             .ToListAsync();
     }
+
+    public async Task<Appointment?> GetByIdAsync(int appointmentId) =>
+        await _appDbContext.Appointments.FindAsync(appointmentId);
+
+    public async Task SubmitAppointmentAsync(int appointmentId)
+    {
+        var appointment = await GetByIdAsync(appointmentId);
+        if (appointment != null)
+        {
+            appointment.Status = Submitted.ToString();
+            _appDbContext.Update(appointment);
+            await _appDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task RejectAppointmentAsync(int appointmentId)
+    {
+        var appointment = await GetByIdAsync(appointmentId);
+        if (appointment != null)
+        {
+            appointment.Status = Rejected.ToString();
+            _appDbContext.Update(appointment);
+            await _appDbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task CompleteAppointmentAsync(int appointmentId)
+    {
+        var appointment = await GetByIdAsync(appointmentId);
+        if (appointment != null)
+        {
+            appointment.Status = Completed.ToString();
+            _appDbContext.Update(appointment);
+            await _appDbContext.SaveChangesAsync();
+        }
+    }
 }

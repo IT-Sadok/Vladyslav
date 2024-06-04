@@ -1,6 +1,7 @@
 using Application.Abstractions;
 using Application.Abstractions.Decorators;
 using Domain.Entities;
+using Healthcare.Application.Appointments.Commands.Book;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using static Domain.Constants.AppointmentStatusConstants;
