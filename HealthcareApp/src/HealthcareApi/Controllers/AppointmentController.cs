@@ -1,3 +1,4 @@
+using Domain.Constants;
 using Healthcare.Application.Appointments.Commands.Book;
 using Healthcare.Application.Appointments.Commands.Complete;
 using Healthcare.Application.Appointments.Commands.Reject;
@@ -7,10 +8,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Domain.Constants.UserRolesConstants;
 
 namespace HealthcareApi.Controllers;
 
 [Route("api/[controller]s")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class AppointmentController : Controller
 {
     private readonly IMediator _mediator;
@@ -21,53 +24,50 @@ public class AppointmentController : Controller
     }
 
     [HttpPost("request")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Patient")]
+    [Authorize(Roles = Patient)]
     public async Task<IActionResult> RequestAppointment([FromBody] BookAppointmentCommand command)
     {
         var result = await _mediator.Send(command);
-        if (result) return Ok("Appointment requested successfully");
+        if (result.IsSuccess) return Ok("Appointment requested successfully");
 
-        return BadRequest("Failed to book appointment");
+        return BadRequest(result.Error);
     }
 
-    [HttpGet("requested")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Doctor")]
-    public async Task<IActionResult> GetRequestedAppointments([FromQuery] GetRequestedAppointmentsQuery query)
+    [HttpGet]
+    [Authorize(Roles = Doctor)]
+    public async Task<IActionResult> GetAppointments([FromQuery] GetDoctorAppointmentsQuery query)
     {
         var appointments = await _mediator.Send(query);
-        var result = appointments
-            .Select(x => new { x.AppointmentId, x.PatientId, x.AppointmentDate, x.EndTime, x.StartTime, x.Status });
-
-        return Ok(result);
+        return Ok(appointments);
     }
 
     [HttpPatch("submit")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Doctor")]
+    [Authorize(Roles = Doctor)]
     public async Task<IActionResult> SubmitAppointment([FromBody] SubmitAppointmentCommand command)
     {
         var result = await _mediator.Send(command);
-        if (result) return Ok("Appointment has been successfully submitted");
+        if (result.IsSuccess) return Ok("Appointment has been successfully submitted");
         
-        return BadRequest("Failed to submit appointment");
+        return BadRequest(result.Error);
     }
 
     [HttpPatch("reject")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Doctor")]
+    [Authorize(Roles = Doctor)]
     public async Task<IActionResult> RejectAppointment([FromBody] RejectAppointmentCommand command)
     {
         var result = await _mediator.Send(command);
-        if (result) return Ok("Appointment has been successfully rejected");
+        if (result.IsSuccess) return Ok("Appointment has been successfully rejected");
         
-        return BadRequest("Failed to reject appointment");
+        return BadRequest(result.Error);
     }
 
     [HttpPatch("complete")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Doctor")]
+    [Authorize(Roles = Doctor)]
     public async Task<IActionResult> CompleteAppointment( [FromBody] CompleteAppointmentCommand command)
     {
         var result = await _mediator.Send(command);
-        if (result) return Ok("Appointment has been successfully completed");
+        if (result.IsSuccess) return Ok("Appointment has been successfully completed");
         
-        return BadRequest("Failed to complete appointment");
+        return BadRequest(result.Error);
     }
 }

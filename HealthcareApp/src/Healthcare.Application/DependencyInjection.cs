@@ -2,8 +2,8 @@ using System.Reflection;
 using Application.Abstractions;
 using Application.Implementations;
 using FluentValidation;
+using Healthcare.Application.Mappings;
 using Microsoft.Extensions.DependencyInjection;
-using MediatR;
 
 namespace Healthcare.Application;
 
@@ -15,6 +15,8 @@ public static class DependencyInjection
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
         services.AddScoped<IUserAuthenticationService, AuthenticationService>();
 
+        services.AddAutoMapper(typeof(MappingProfile).Assembly);
+        
         return services;
     }
 }

@@ -6,7 +6,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Application.DTOs.Register;
 using Application.Implementations;
+using AutoMapper;
 using Domain.Entities;
+using MediatR;
 
 
 namespace Healthcare.Tests;
@@ -18,23 +20,27 @@ public class UserAuthenticationServiceTests
     private readonly Mock<IRoleManagerDecorator<IdentityRole>> _roleManagerMock;
     private readonly Mock<ITokenGeneratorService> _generatorService;
     private readonly AuthenticationService _authService;
-    private readonly IScheduleRepository _scheduleRepository;
+    private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
 
 
-    public UserAuthenticationServiceTests(IScheduleRepository scheduleRepository)
+
+    public UserAuthenticationServiceTests(IMapper mapper, IMediator mediator)
     {
-        _scheduleRepository = scheduleRepository;
+        _mapper = mapper;
+        _mediator = mediator;
         _userManagerMock = new Mock<IUserManagerDecorator<ApplicationUser>>();
         _signInManagerMock = new Mock<ISignInManagerDecorator<ApplicationUser>>();
         _roleManagerMock = new Mock<IRoleManagerDecorator<IdentityRole>>();
         _generatorService = new Mock<ITokenGeneratorService>();
+        
 
         _authService = new AuthenticationService(
             _userManagerMock.Object,
             _signInManagerMock.Object, 
-            _roleManagerMock.Object, 
             _generatorService.Object,
-            _scheduleRepository);
+            _mapper,
+            _mediator);
     }
 
     [Fact]

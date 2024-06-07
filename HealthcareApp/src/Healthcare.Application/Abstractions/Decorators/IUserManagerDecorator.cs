@@ -9,6 +9,7 @@ public interface IUserManagerDecorator<TUser> where TUser : class
     Task<TUser> FindByEmailAsync(string email);
     Task<IList<string>> GetRolesAsync(TUser user);
     Task<IdentityResult> AddToRoleAsync(TUser user, string role);
-    Task<IQueryable<TUser>> GetAllUsersAsync();
+    Task<List<TUser>> GetAllUsersAsync();
 
+    Task<TUser?> FindByIdAsync(string id);
 }

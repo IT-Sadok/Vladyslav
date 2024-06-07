@@ -1,8 +1,9 @@
 using Application.Abstractions;
+using Domain.Constants;
 using Domain.Entities;
+using Healthcare.Application.DTOs.Appointment;
 using Healthcare.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
-using static Domain.Constants.AppointmentStatusConstants;
 
 namespace Infrastructure.Repository;
 
@@ -18,48 +19,39 @@ public class AppointmentRepository : IAppointmentRepository
         await _appDbContext.SaveChangesAsync();
     }
 
-    public async Task<List<Appointment>> GetAllAppointmentsAsync() => await _appDbContext.Appointments.ToListAsync();
-
-    public async Task<List<Appointment>> GetRequestedAppointments(string doctorId)
+    public async Task<List<AppointmentDTO>> GetDoctorAppointments(string doctorId, int pageSize)
     {
-        return await _appDbContext.Appointments.Where(x => x.DoctorId == doctorId && x.Status == Requested.ToString())
-            
+        return await _appDbContext.Appointments.Where(x => x.DoctorId == doctorId)
+            .OrderBy(x => x.AppointmentDate)
+            .Take(pageSize).Select(x =>
+                new AppointmentDTO(x.Id, x.PatientId, x.AppointmentDate, x.StartTime, x.EndTime, x.Status.ToString()))
             .ToListAsync();
     }
 
     public async Task<Appointment?> GetByIdAsync(int appointmentId) =>
         await _appDbContext.Appointments.FindAsync(appointmentId);
 
-    public async Task SubmitAppointmentAsync(int appointmentId)
+    public async Task ChangeStatusAsync(int appointmentId, AppointmentStatuses status)
     {
         var appointment = await GetByIdAsync(appointmentId);
         if (appointment != null)
         {
-            appointment.Status = Submitted.ToString();
+            appointment.Status = status;
             _appDbContext.Update(appointment);
             await _appDbContext.SaveChangesAsync();
         }
     }
 
-    public async Task RejectAppointmentAsync(int appointmentId)
+    public async Task<bool> IsAvailableAsync(string doctorId, DateTime date, TimeSpan startTime)
     {
-        var appointment = await GetByIdAsync(appointmentId);
-        if (appointment != null)
-        {
-            appointment.Status = Rejected.ToString();
-            _appDbContext.Update(appointment);
-            await _appDbContext.SaveChangesAsync();
-        }
-    }
+        var endTime = startTime.Add(TimeSpan.FromMinutes(15));
 
-    public async Task CompleteAppointmentAsync(int appointmentId)
-    {
-        var appointment = await GetByIdAsync(appointmentId);
-        if (appointment != null)
-        {
-            appointment.Status = Completed.ToString();
-            _appDbContext.Update(appointment);
-            await _appDbContext.SaveChangesAsync();
-        }
+        var existingAppointment = await _appDbContext.Appointments.SingleOrDefaultAsync( a =>
+            a.DoctorId == doctorId &&
+            a.AppointmentDate == date &&
+            ((a.StartTime <= startTime && a.EndTime > startTime) ||
+             (a.StartTime < endTime && a.EndTime >= endTime)));
+
+        return existingAppointment == null;
     }
 }

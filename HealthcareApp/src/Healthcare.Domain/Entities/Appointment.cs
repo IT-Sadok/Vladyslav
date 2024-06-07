@@ -1,8 +1,10 @@
+using Domain.Constants;
+
 namespace Domain.Entities;
 
 public class Appointment
 {
-    public int AppointmentId { get; set; }
+    public int Id { get; set; }
     public string DoctorId { get; set; }
     public string PatientId { get; set; }
     public ApplicationUser Doctor { get; set; }
@@ -14,5 +16,5 @@ public class Appointment
     
     public TimeSpan EndTime { get; set; }
     
-    public string Status { get; set; }
+    public AppointmentStatuses Status { get; set; }
 }

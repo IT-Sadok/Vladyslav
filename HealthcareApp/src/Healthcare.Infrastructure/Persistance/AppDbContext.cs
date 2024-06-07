@@ -1,7 +1,9 @@
+using Domain.Constants;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Healthcare.Infrastructure.Persistance;
 
@@ -17,26 +19,31 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-            
-        // User - Appointment (Doctor) Relationship
+        
         modelBuilder.Entity<Appointment>()
             .HasOne(a => a.Doctor)
             .WithMany(u => u.DoctorAppointments)
             .HasForeignKey(a => a.DoctorId)
-            .OnDelete(DeleteBehavior.Restrict); // Specify restrict to avoid multiple cascade paths
-
-        // User - Appointment (Patient) Relationship
+            .OnDelete(DeleteBehavior.Restrict); 
+        
         modelBuilder.Entity<Appointment>()
             .HasOne(a => a.Patient)
             .WithMany(u => u.PatientAppointments)
             .HasForeignKey(a => a.PatientId)
-            .OnDelete(DeleteBehavior.Restrict); // Specify restrict to avoid multiple cascade paths
-
-        // User - Schedule Relationship
+            .OnDelete(DeleteBehavior.Restrict); 
+        
         modelBuilder.Entity<Schedule>()
             .HasOne(s => s.Doctor)
             .WithMany()
             .HasForeignKey(s => s.DoctorId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Schedule>()
+            .Property(a => a.DayOfWeek)
+            .HasConversion(new EnumToStringConverter<DayOfWeek>());
+        
+        modelBuilder.Entity<Appointment>()
+            .Property(a => a.Status)
+            .HasConversion(new EnumToStringConverter<AppointmentStatuses>());
     }
 }

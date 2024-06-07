@@ -1,9 +1,11 @@
 using Application.Abstractions;
+using Healthcare.Application.DTOs.Result;
 using MediatR;
+using static Domain.Constants.AppointmentStatuses;
 
 namespace Healthcare.Appointments.Commands.Submit;
 
-public class SubmitAppointmentCommandHandler : IRequestHandler<SubmitAppointmentCommand, bool>
+public class SubmitAppointmentCommandHandler : IRequestHandler<SubmitAppointmentCommand, Result>
 {
     private readonly IAppointmentRepository _appointmentRepository;
 
@@ -12,12 +14,12 @@ public class SubmitAppointmentCommandHandler : IRequestHandler<SubmitAppointment
         _appointmentRepository = appointmentRepository;
     }
 
-    public async Task<bool> Handle(SubmitAppointmentCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(SubmitAppointmentCommand request, CancellationToken cancellationToken)
     {
         if (await _appointmentRepository.GetByIdAsync(request.AppointmentId) == null)
-            throw new Exception("Appointment not found");
+            return Result.Failure("Appointment not found");
 
-        await _appointmentRepository.SubmitAppointmentAsync(request.AppointmentId);
-        return true;
+        await _appointmentRepository.ChangeStatusAsync(request.AppointmentId, Submitted);
+        return Result.Success();
     }
 }

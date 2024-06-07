@@ -2,8 +2,10 @@ using Application.Abstractions;
 using Application.Abstractions.Decorators;
 using Application.DTOs.Login;
 using Application.DTOs.Register;
-using Domain.Constants;
+using AutoMapper;
 using Domain.Entities;
+using Healthcare.Application.Schedules.Notifications;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using static Domain.Constants.UserRolesConstants;
 
@@ -13,21 +15,20 @@ public class AuthenticationService : IUserAuthenticationService
 {
     private readonly IUserManagerDecorator<ApplicationUser> _userManager;
     private readonly ISignInManagerDecorator<ApplicationUser> _signInManager;
-    private readonly IRoleManagerDecorator<IdentityRole> _roleManager;
     private readonly ITokenGeneratorService _generatorService;
-    private readonly IScheduleRepository _scheduleRepository;
-
+    private readonly IMapper _mapper;
+    private readonly IMediator _mediator;
 
 
     public AuthenticationService(IUserManagerDecorator<ApplicationUser> userManager,
         ISignInManagerDecorator<ApplicationUser> signInManager,
-        IRoleManagerDecorator<IdentityRole> roleManager, ITokenGeneratorService generatorService, IScheduleRepository scheduleRepository)
+        ITokenGeneratorService generatorService, IMapper mapper, IMediator mediator)
     {
         _userManager = userManager;
         _signInManager = signInManager;
-        _roleManager = roleManager;
         _generatorService = generatorService;
-        _scheduleRepository = scheduleRepository;
+        _mapper = mapper;
+        _mediator = mediator;
     }
 
     public async Task<IdentityResult> RegisterAsync(RegisterUserDTO registerUserDto)
@@ -39,14 +40,8 @@ public class AuthenticationService : IUserAuthenticationService
             return IdentityResult.Failed(new IdentityError { Description = description });
         }
 
-        var user = new ApplicationUser
-        {
-            Id = Guid.NewGuid().ToString(),
-            FirstName = registerUserDto.FirstName,
-            LastName = registerUserDto.LastName,
-            Email = registerUserDto.Email,
-            UserName = registerUserDto.Email
-        };
+        var user = _mapper.Map<ApplicationUser>(registerUserDto);
+        
         var result = await _userManager.CreateAsync(user, registerUserDto.Password);
 
         var userRole = registerUserDto.Role;
@@ -54,8 +49,7 @@ public class AuthenticationService : IUserAuthenticationService
 
         await _userManager.AddToRoleAsync(user, registerUserDto.Role);
 
-        if (registerUserDto.Role == "Doctor")
-           await _scheduleRepository.CreateDefaultWorkingScheduleAsync(user.Id);
+        await _mediator.Publish(new UserRegisteredNotification(registerUserDto.Role, user.Id));
 
         return result;
     }

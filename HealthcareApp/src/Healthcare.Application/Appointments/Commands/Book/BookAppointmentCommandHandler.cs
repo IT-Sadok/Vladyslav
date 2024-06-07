@@ -1,60 +1,44 @@
 using Application.Abstractions;
 using Application.Abstractions.Decorators;
+using AutoMapper;
 using Domain.Entities;
 using Healthcare.Application.Appointments.Commands.Book;
+using Healthcare.Application.DTOs.Result;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using static Domain.Constants.AppointmentStatusConstants;
 
 namespace Healthcare.Application.Appointments.Commands;
 
-public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentCommand, bool>
+public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentCommand, Result>
 {
     private readonly IUserManagerDecorator<ApplicationUser> _userManager;
     private readonly IAppointmentRepository _appointmentRepository;
-
+    private readonly IMapper _mapper;
 
     public BookAppointmentCommandHandler(IUserManagerDecorator<ApplicationUser> userManager,
-        IAppointmentRepository appointmentRepository)
+        IAppointmentRepository appointmentRepository, IMapper mapper)
     {
         _userManager = userManager;
         _appointmentRepository = appointmentRepository;
+        _mapper = mapper;
     }
 
-    public async Task<bool> Handle(BookAppointmentCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(BookAppointmentCommand request, CancellationToken cancellationToken)
     {
-        var users = await _userManager.GetAllUsersAsync();
+        var doctor = await _userManager.FindByIdAsync(request.DoctorId);
+        if (doctor == null) return Result.Failure("Doctor not found");
 
-        var doctor = await users.FirstOrDefaultAsync(x => x.Id == request.DoctorId, cancellationToken);
-        if (doctor == null) throw new Exception("Doctor not found");
+        var patient = await _userManager.FindByIdAsync(request.PatientId);
+        if (patient == null) return Result.Failure("Patient not found");
 
-        var patient = await users.FirstOrDefaultAsync(x => x.Id == request.DoctorId, cancellationToken);
-        if (patient == null) throw new Exception("Patient not found");
+        var isAvailable =
+            await _appointmentRepository.IsAvailableAsync(doctor.Id, request.AppointmentDate, request.StartTime);
+        if (!isAvailable)
+            return Result.Failure("Appointment slot already booked");
 
-        var endTime = request.StartTime.Add(TimeSpan.FromMinutes(15));
-
-
-        var appointments = await _appointmentRepository.GetAllAppointmentsAsync();
-        var existingAppointment = appointments.FirstOrDefault<Appointment>(a =>
-            a.DoctorId == request.DoctorId.ToString() &&
-            a.AppointmentDate == request.AppointmentDate.Date &&
-            ((a.StartTime <= request.StartTime && a.EndTime > request.StartTime) ||
-             (a.StartTime < endTime && a.EndTime >= endTime)));
+        var appointment = _mapper.Map<Appointment>(request);
         
-        if (existingAppointment != null) throw new Exception("Appointment slot already booked");
-
-        var appointment = new Appointment
-        {
-            DoctorId = request.DoctorId.ToString(),
-            PatientId = request.PatientId.ToString(),
-            AppointmentDate = request.AppointmentDate.Date,
-            StartTime = request.StartTime,
-            EndTime = endTime,
-            Status = Requested.ToString()
-        };
-
         await _appointmentRepository.RequestAppointmentAsync(appointment);
 
-        return true;
+        return Result.Success();
     }
 }
