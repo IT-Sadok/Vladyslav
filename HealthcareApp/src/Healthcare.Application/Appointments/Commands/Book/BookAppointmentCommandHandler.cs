@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Healthcare.Application.Appointments.Commands;
 
-public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentCommand, Result>
+public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentCommand, Result<string>>
 {
     private readonly IUserManagerDecorator<ApplicationUser> _userManager;
     private readonly IAppointmentRepository _appointmentRepository;
@@ -22,23 +22,30 @@ public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentComm
         _mapper = mapper;
     }
 
-    public async Task<Result> Handle(BookAppointmentCommand request, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(BookAppointmentCommand request, CancellationToken cancellationToken)
     {
         var doctor = await _userManager.FindByIdAsync(request.DoctorId);
-        if (doctor == null) return Result.Failure("Doctor not found");
+        if (doctor == null) return Result<string>.Failure("Doctor not found");
 
         var patient = await _userManager.FindByIdAsync(request.PatientId);
-        if (patient == null) return Result.Failure("Patient not found");
+        if (patient == null) return Result<string>.Failure("Patient not found");
 
         var isAvailable =
             await _appointmentRepository.IsAvailableAsync(doctor.Id, request.AppointmentDate, request.StartTime);
         if (!isAvailable)
-            return Result.Failure("Appointment slot already booked");
+            return Result<string>.Failure("Appointment slot already booked");
 
         var appointment = _mapper.Map<Appointment>(request);
-        
-        await _appointmentRepository.RequestAppointmentAsync(appointment);
 
-        return Result.Success();
+        try
+        {
+            await _appointmentRepository.RequestAppointmentAsync(appointment);
+        }
+        catch (Exception e)
+        {
+            return Result<string>.Failure(e.Message);
+        }
+
+        return Result<string>.Success();
     }
 }

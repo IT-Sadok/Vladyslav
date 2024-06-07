@@ -15,11 +15,8 @@ public class UserManagerDecorator<TUser> : IUserManagerDecorator<TUser> where TU
     }
 
     public Task<IdentityResult> CreateAsync(TUser user, string password) => _userManager.CreateAsync(user, password);
-    public Task<TUser> FindByEmailAsync(string email) => _userManager.FindByEmailAsync(email);
+    public Task<TUser?> FindByEmailAsync(string email) => _userManager.FindByEmailAsync(email);
     public Task<IList<string>> GetRolesAsync(TUser user) => _userManager.GetRolesAsync(user);
     public Task<IdentityResult> AddToRoleAsync(TUser user, string role) => _userManager.AddToRoleAsync(user, role);
-
-    public async Task<List<TUser>> GetAllUsersAsync() => await _userManager.Users.ToListAsync();
-
     public async Task<TUser?> FindByIdAsync(string id) => await _userManager.FindByIdAsync(id);
 }

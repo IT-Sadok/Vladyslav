@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Healthcare.Application.Appointments.Commands.Reject;
 
-public record RejectAppointmentCommand(int AppointmentId) : IRequest<Result>;
+public record RejectAppointmentCommand(int AppointmentId) : IRequest<Result<string>>;

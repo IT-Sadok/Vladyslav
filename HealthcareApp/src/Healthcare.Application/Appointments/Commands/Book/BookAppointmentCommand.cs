@@ -8,4 +8,4 @@ public record BookAppointmentCommand(
     string PatientId, 
     DateTime AppointmentDate, 
     TimeSpan StartTime) 
-    : IRequest<Result>;
+    : IRequest<Result<string>>;

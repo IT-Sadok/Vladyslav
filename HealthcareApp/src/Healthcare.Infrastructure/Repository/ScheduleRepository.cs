@@ -15,25 +15,8 @@ public class ScheduleRepository : IScheduleRepository
     public async Task<List<Schedule>> GetDoctorSchedule(string doctorId, int pageSize)
         => await _appDbContext.Schedules.Where(s => s.DoctorId == doctorId).Take(pageSize).ToListAsync();
 
-    public async Task CreateDefaultWorkingScheduleAsync(string doctorId)
+    public async Task CreateDefaultWorkingScheduleAsync(List<Schedule> workingHours)
     {
-        var workingHours = new List<Schedule>();
-        var startTime = new TimeSpan(8, 0, 0);
-        var endTime = new TimeSpan(16, 0, 0);
-
-        for (int i = 0; i < 5; i++)
-        {
-            var date = DateTime.Today.AddDays(i - (int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
-            workingHours.Add(new Schedule
-            {
-                DoctorId = doctorId,
-                DayOfWeek = date.DayOfWeek,
-                Date = date,
-                StartTime = startTime,
-                EndTime = endTime
-            });
-        }
-
         _appDbContext.Schedules.AddRange(workingHours);
         await _appDbContext.SaveChangesAsync();
     }

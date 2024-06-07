@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Healthcare.Appointments.Commands.Submit;
 
-public record SubmitAppointmentCommand(int AppointmentId) : IRequest<Result>;
+public record SubmitAppointmentCommand(int AppointmentId) : IRequest<Result<string>>;
