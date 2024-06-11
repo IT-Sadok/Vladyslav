@@ -26,7 +26,7 @@ public class
         CancellationToken cancellationToken)
     {
         var doctor = await _userManager.FindByIdAsync(request.DoctorId);
-        if (doctor == null) throw new Exception("Doctor not found");
+        if (doctor == null) return Result<List<AppointmentDTO>>.Failure("Doctor not found");
 
 
         var appointments =  await _appointmentRepository.GetDoctorAppointments(request.DoctorId, request.Pagesize);

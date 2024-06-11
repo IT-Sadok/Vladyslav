@@ -9,5 +9,5 @@ public interface IScheduleRepository
     
     Task CreateDefaultWorkingScheduleAsync(List<Schedule> workingHours);
 
-    Task<Dictionary<string, List<TimeSlotDTO>>> GetTimeSlots(ApplicationUser doctor, List<Schedule> schedules);
+    Task<TimeSlotsDictionary> GetTimeSlots(ApplicationUser doctor, List<Schedule> schedules);
 }

@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Healthcare.Application.Schedules.Queries.AvailableTimeSlots;
 
-public record GetAvailableSlotsQuery(string DoctorId, int PageSize) : IRequest<Result<Dictionary<string, List<TimeSlotDTO>>>>;
+public record GetAvailableSlotsQuery(string DoctorId, int PageSize) : IRequest<Result<TimeSlotsDictionary>>;

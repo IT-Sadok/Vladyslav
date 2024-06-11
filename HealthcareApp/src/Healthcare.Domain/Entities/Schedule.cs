@@ -2,7 +2,7 @@ namespace Domain.Entities;
 
 public class Schedule
 {
-    public int ScheduleId { get; set; }
+    public int Id { get; set; }
     
     public string DoctorId { get; set; }
     

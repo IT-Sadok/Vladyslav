@@ -34,8 +34,9 @@ public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentComm
             await _appointmentRepository.IsAvailableAsync(doctor.Id, request.AppointmentDate, request.StartTime);
         if (!isAvailable)
             return Result<string>.Failure("Appointment slot already booked");
-
+        
         var appointment = _mapper.Map<Appointment>(request);
+        appointment.EndTime = request.StartTime.Add(TimeSpan.FromMinutes(15));
 
         try
         {

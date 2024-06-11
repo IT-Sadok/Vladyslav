@@ -3,6 +3,7 @@ using Healthcare.Application.Appointments.Commands.Book;
 using Healthcare.Application.Appointments.Commands.Complete;
 using Healthcare.Application.Appointments.Commands.Reject;
 using Healthcare.Application.Appointments.Queries;
+using Healthcare.Application.DTOs.Result;
 using Healthcare.Appointments.Commands.Submit;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,9 +47,7 @@ public class AppointmentController : Controller
     public async Task<IActionResult> SubmitAppointment([FromBody] SubmitAppointmentCommand command)
     {
         var result = await _mediator.Send(command);
-        if (result.IsSuccess) return Ok("Appointment has been successfully submitted");
-        
-        return BadRequest(result.Error);
+        return result.ToActionResult("Appointment has been successfully submitted");
     }
 
     [HttpPatch("reject")]
@@ -56,9 +55,7 @@ public class AppointmentController : Controller
     public async Task<IActionResult> RejectAppointment([FromBody] RejectAppointmentCommand command)
     {
         var result = await _mediator.Send(command);
-        if (result.IsSuccess) return Ok("Appointment has been successfully rejected");
-        
-        return BadRequest(result.Error);
+        return result.ToActionResult("Appointment has been successfully rejected");
     }
 
     [HttpPatch("complete")]
@@ -66,8 +63,6 @@ public class AppointmentController : Controller
     public async Task<IActionResult> CompleteAppointment( [FromBody] CompleteAppointmentCommand command)
     {
         var result = await _mediator.Send(command);
-        if (result.IsSuccess) return Ok("Appointment has been successfully completed");
-        
-        return BadRequest(result.Error);
+        return result.ToActionResult("Appointment has been successfully completed");
     }
 }

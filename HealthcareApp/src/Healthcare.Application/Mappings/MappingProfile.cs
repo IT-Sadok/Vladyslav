@@ -13,7 +13,6 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<BookAppointmentCommand, Appointment>()
-            .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.StartTime.Add(TimeSpan.FromMinutes(15))))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => Requested));
 
         CreateMap<RegisterUserDTO, ApplicationUser>()
