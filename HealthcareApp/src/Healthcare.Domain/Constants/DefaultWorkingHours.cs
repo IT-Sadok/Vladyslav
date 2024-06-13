@@ -1,0 +1,29 @@
+using Domain.Entities;
+
+namespace Domain.Constants;
+
+public static class DefaultWorkingHours
+{
+    public static readonly IReadOnlyList<Schedule> Schedules;
+
+    static DefaultWorkingHours()
+    {
+        var workingHours = new List<Schedule>();
+        var startTime = new TimeSpan(8, 0, 0);
+        var endTime = new TimeSpan(16, 0, 0);
+
+        for (int i = 0; i < 5; i++)
+        {
+            var date = DateTime.Today.AddDays(i - (int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+            workingHours.Add(new Schedule
+            {
+                DayOfWeek = date.DayOfWeek,
+                Date = date,
+                StartTime = startTime,
+                EndTime = endTime
+            });
+        }
+
+        Schedules = workingHours.AsReadOnly();
+    }
+}

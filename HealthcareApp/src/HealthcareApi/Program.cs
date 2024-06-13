@@ -1,5 +1,3 @@
-using Application.DTOs.Register;
-using FluentValidation;
 using Healthcare.Application;
 using FluentValidation.AspNetCore;
 using HealthcareApi.Filters;
