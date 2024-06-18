@@ -4,9 +4,7 @@ namespace Domain.Constants;
 
 public static class DefaultWorkingHours
 {
-    public static readonly IReadOnlyList<Schedule> Schedules;
-
-    static DefaultWorkingHours()
+    public static IReadOnlyList<Schedule> CreateWorkingHours(string doctorId)
     {
         var workingHours = new List<Schedule>();
         var startTime = new TimeSpan(8, 0, 0);
@@ -17,6 +15,7 @@ public static class DefaultWorkingHours
             var date = DateTime.Today.AddDays(i - (int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
             workingHours.Add(new Schedule
             {
+                DoctorId = doctorId,
                 DayOfWeek = date.DayOfWeek,
                 Date = date,
                 StartTime = startTime,
@@ -24,6 +23,6 @@ public static class DefaultWorkingHours
             });
         }
 
-        Schedules = workingHours.AsReadOnly();
+        return  workingHours.AsReadOnly();
     }
 }

@@ -1,0 +1,30 @@
+{
+  "patients": [
+    {
+      "id": "e4c96fce-8220-4815-b09a-e541b581539d",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
+      "passwordHash" : "}PDKG{PSKE{PAOWGIUACJAjhijabfigIUAFugqfk"
+    }
+  ],
+  "doctors": [
+    {
+      "id": "75e8d922-b44a-4338-bb69-66b7a7477e0d",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "email": "jane.smith@example.com",
+      "passwordHash" : "A#FohgaAEUFBjawouOFEAfuohknawefPOAEJF"
+    }
+  ],
+  "appointments": [
+    {
+      "doctorId": "75e8d922-b44a-4338-bb69-66b7a7477e0d",
+      "patientId": "e4c96fce-8220-4815-b09a-e541b581539d",
+      "appointmentDate": "2023-06-01T08:00:00",
+      "startTime": "08:00:00",
+      "endTime": "08:15:00",
+      "status": "1"
+    }
+  ]
+}

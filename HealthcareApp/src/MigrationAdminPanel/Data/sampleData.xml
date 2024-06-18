@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<data>
+    <doctors>
+        <doctor>
+            <id>090bba21-0e4c-4d7e-97d3-1e3cdba33168</id>
+            <firstName>Robert</firstName>
+            <lastName>Johnson</lastName>
+            <email>robert.johnson@example.com</email>
+            <passwordHash>WEOAoaefeaihoOASBEFAJAEB</passwordHash>
+        </doctor>
+    </doctors>
+    <patients>
+        <patient>
+            <id>a707c85b-a1c6-445b-b208-195dfe75d241</id>
+            <firstName>Alice</firstName>
+            <lastName>Williams</lastName>
+            <email>alice.williams@example.com</email>
+            <passwordHash>OAIEHFOAANOFOEAOBobaoebfoeb</passwordHash>
+        </patient>
+    </patients>
+</data>

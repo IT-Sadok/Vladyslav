@@ -21,7 +21,7 @@ public class ScheduleRepository : IScheduleRepository
         await _appDbContext.SaveChangesAsync();
     }
 
-    public Task<TimeSlotsDictionary> GetTimeSlots(ApplicationUser doctor, List<Schedule> schedules)
+    public async Task<TimeSlotsDictionary> GetTimeSlots(ApplicationUser doctor, List<Schedule> schedules)
     {
         var weekSlots = new TimeSlotsDictionary();
 
@@ -30,12 +30,12 @@ public class ScheduleRepository : IScheduleRepository
             var schedule = schedules.FirstOrDefault(s => s.DayOfWeek == day);
             if (schedule == null) continue;
 
-            var appointments =   _appDbContext.Appointments
-                .Where(a => a.DoctorId == doctor.Id)
-                .ToList()
-                .Where(a => a.AppointmentDate.DayOfWeek == day)
-                .Select(a => new { a.StartTime, a.EndTime })
-                .ToList();
+            var appointments = await _appDbContext.Appointments.FromSqlRaw(
+                    @"SELECT * 
+                FROM Appointments
+                WHERE DoctorId = {0} AND DATEPART(dw, AppointmentDate) = {1}", doctor.Id, (int)day + 1)
+                .ToListAsync();
+
 
             var availableSlots = new List<TimeSlotDTO>();
             var startTime = schedule.StartTime;
@@ -55,6 +55,6 @@ public class ScheduleRepository : IScheduleRepository
             weekSlots[day.ToString()] = availableSlots;
         }
 
-        return Task.FromResult(weekSlots);
+        return weekSlots;
     }
 }

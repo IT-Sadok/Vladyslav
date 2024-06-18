@@ -4,6 +4,7 @@ using Application.DTOs.Login;
 using Application.DTOs.Register;
 using AutoMapper;
 using Domain.Entities;
+using Healthcare.Application.DTOs.Result;
 using Healthcare.Application.Schedules.Notifications;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -41,10 +42,10 @@ public class AuthenticationService : IUserAuthenticationService
         }
 
         var user = _mapper.Map<ApplicationUser>(registerUserDto);
-        
-        var result = await _userManager.CreateAsync(user, registerUserDto.Password);
+        user.Id = Guid.NewGuid().ToString();
 
-        var userRole = registerUserDto.Role;
+        var result = await _userManager.CreateAsync(user, registerUserDto.Password);
+        
         if (!result.Succeeded) return result;
 
         await _userManager.AddToRoleAsync(user, registerUserDto.Role);
@@ -60,7 +61,7 @@ public class AuthenticationService : IUserAuthenticationService
 
         var result =
             await _signInManager.PasswordSignInAsync(loginUserDto.Email, loginUserDto.Password, false, false);
-        if (!result.Succeeded) return string.Empty;
+        if (!result.Succeeded) return string.Empty; 
 
         var userRoles = await _userManager.GetRolesAsync(user ?? new ApplicationUser());
 
