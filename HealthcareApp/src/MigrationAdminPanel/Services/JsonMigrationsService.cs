@@ -1,63 +1,39 @@
-using Application.Abstractions;
 using Application.Abstractions.Decorators;
-using Domain.Constants;
+using Application.Abstractions;
 using Domain.Entities;
 using MigrationAdminPanel.Abstractions;
 using MigrationAdminPanel.DataTypes;
 using Newtonsoft.Json;
 
-namespace MigrationAdminPanel.Services;
-
-public class JsonMigrationsService : MigrationsService
+namespace MigrationAdminPanel.Services
 {
-    private readonly IUserManagerDecorator<ApplicationUser> _userManager;
-    private readonly IAppointmentRepository _appointmentRepository;
-
-    public JsonMigrationsService(IUserManagerDecorator<ApplicationUser> userManager,
-        IAppointmentRepository appointmentRepository)
+    public class JsonMigrationsService : MigrationsService
     {
-        _userManager = userManager;
-        _appointmentRepository = appointmentRepository;
-    }
+        private readonly IAppointmentRepository _appointmentRepository;
 
-    public override async Task MigrateData(string path)
-    {
-        try
+        public JsonMigrationsService(IUserManagerDecorator<ApplicationUser> userManager, IAppointmentRepository appointmentRepository)
+            : base(userManager)
         {
-            var jsonString = await File.ReadAllTextAsync(path);
-
-            var migrationsData = JsonConvert.DeserializeObject<JsonMigrationsData>(jsonString);
-
-            // Check if migrationsData is null
-            if (migrationsData == null)
-            {
-                Console.WriteLine("Deserialization failed, migrationsData is null.");
-                return;
-            }
-
-
-            List<ApplicationUser> patients = migrationsData.Patients;
-            List<ApplicationUser> doctors = migrationsData.Doctors;
-            List<Appointment> appointments = migrationsData.Appointments;
-
-            await _userManager.MigrateRangeAsync(patients, doctors);
-            await _appointmentRepository.MigrateRangeAsync(appointments);
-
-            foreach (var patient in patients)
-            {
-                patient.UserName = patient.Email;
-                await _userManager.AddToRoleAsync(patient, UserRolesConstants.Patient);
-            }
-
-            foreach (var doctor in doctors)
-            {
-                doctor.UserName = doctor.Email;
-                await _userManager.AddToRoleAsync(doctor, UserRolesConstants.Doctor);
-            }
+            _appointmentRepository = appointmentRepository;
         }
-        catch (Exception ex)
+
+        protected override async Task<object?> ReadDataFromFile(string path)
         {
-            Console.WriteLine($"An error occurred: {ex.Message}");
+            string jsonString = await File.ReadAllTextAsync(path);
+            return JsonConvert.DeserializeObject<JsonMigrationsData>(jsonString);
+        }
+
+        protected override (List<ApplicationUser> patients, List<ApplicationUser> doctors) ExtractUserData(object data)
+        {
+            var migrationsData = (JsonMigrationsData)data;
+            return (migrationsData.Patients, migrationsData.Doctors);
+        }
+
+        protected override async Task MigrateAdditionalData(object data)
+        {
+            var migrationsData = (JsonMigrationsData)data;
+            var appointments = migrationsData.Appointments;
+            await _appointmentRepository.MigrateRangeAsync(appointments);
         }
     }
 }

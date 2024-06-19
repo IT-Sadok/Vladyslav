@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using Domain.Entities;
-using MigrationAdminPanel.Abstractions;
 
 namespace MigrationAdminPanel.DataTypes;
 

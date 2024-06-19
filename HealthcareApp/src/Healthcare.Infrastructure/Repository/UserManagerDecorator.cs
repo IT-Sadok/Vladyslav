@@ -28,7 +28,6 @@ public class UserManagerDecorator<TUser> : IUserManagerDecorator<TUser> where TU
         INSERT INTO AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, FirstName, LastName, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount)
         VALUES ";
 
-        // Generate parameter placeholders for each user
         List<string> valuePlaceholders = new List<string>();
         List<object> parameters = new List<object>();
         int index = 0;
@@ -60,8 +59,7 @@ public class UserManagerDecorator<TUser> : IUserManagerDecorator<TUser> where TU
         }
 
         sqlQuery += string.Join(", ", valuePlaceholders);
-
-        // Execute the SQL query asynchronously
+        
         await _context.Database.ExecuteSqlRawAsync(sqlQuery, parameters.ToArray());
     }
 

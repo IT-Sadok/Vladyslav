@@ -1,35 +1,29 @@
-using System.Xml;
-using System.Xml.Serialization;
-using Application.Abstractions;
 using Application.Abstractions.Decorators;
-using Domain.Constants;
 using Domain.Entities;
 using MigrationAdminPanel.Abstractions;
 using MigrationAdminPanel.DataTypes;
+using System.Xml.Serialization;
 
-namespace MigrationAdminPanel.Services;
-
-public class XmlMigrationsService : MigrationsService
+namespace MigrationAdminPanel.Services
 {
-    private readonly IUserManagerDecorator<ApplicationUser> _userManager;
-    private readonly IAppointmentRepository _appointmentRepository;
-
-    public XmlMigrationsService(IUserManagerDecorator<ApplicationUser> userManager,
-        IAppointmentRepository appointmentRepository)
+    public class XmlMigrationsService : MigrationsService
     {
-        _userManager = userManager;
-        _appointmentRepository = appointmentRepository;
-    }
+        public XmlMigrationsService(IUserManagerDecorator<ApplicationUser> userManager)
+            : base(userManager) { }
 
-    public override async Task MigrateData(string path)
-    {
-        try
+        protected override async Task<object?> ReadDataFromFile(string path)
         {
-            // TODO
+            string xmlContent = await File.ReadAllTextAsync(path);
+            var ser = new XmlSerializer(typeof(XmlMigrationsData));
+            using var reader = new StringReader(xmlContent);
+
+            return ser.Deserialize(reader);
         }
-        catch (Exception ex)
+
+        protected override (List<ApplicationUser> patients, List<ApplicationUser> doctors) ExtractUserData(object data)
         {
-            Console.WriteLine($"An error occurred: {ex.Message}");
+            var migrationsData = (XmlMigrationsData)data;
+            return (migrationsData.Patients, migrationsData.Doctors);
         }
     }
 }

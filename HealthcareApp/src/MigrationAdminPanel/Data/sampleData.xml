@@ -1,21 +1,39 @@
-<?xml version='1.0' encoding='utf-8'?>
-<data>
+<?xml version="1.0" encoding="utf-8"?>
+<data xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <doctors>
         <doctor>
-            <id>090bba21-0e4c-4d7e-97d3-1e3cdba33168</id>
-            <firstName>Robert</firstName>
-            <lastName>Johnson</lastName>
-            <email>robert.johnson@example.com</email>
-            <passwordHash>WEOAoaefeaihoOASBEFAJAEB</passwordHash>
+            <Id>076e555d-0544-4274-882b-ff4adeee55a5</Id>
+            <UserName>robert.johnson@example.com</UserName>
+            <Email>robert.johnson@example.com</Email>
+            <EmailConfirmed>false</EmailConfirmed>
+            <PasswordHash>hashedpassword</PasswordHash>
+            <SecurityStamp>7a08b9ea-c0fd-496e-8c9c-bff648a7b561</SecurityStamp>
+            <ConcurrencyStamp>bdfed459-107c-4445-b76e-33f3836814e9</ConcurrencyStamp>
+            <PhoneNumberConfirmed>false</PhoneNumberConfirmed>
+            <TwoFactorEnabled>false</TwoFactorEnabled>
+            <LockoutEnd xsi:nil="true" />
+            <LockoutEnabled>false</LockoutEnabled>
+            <AccessFailedCount>0</AccessFailedCount>
+            <FirstName>Robert</FirstName>
+            <LastName>Johnson</LastName>
         </doctor>
     </doctors>
     <patients>
         <patient>
-            <id>a707c85b-a1c6-445b-b208-195dfe75d241</id>
-            <firstName>Alice</firstName>
-            <lastName>Williams</lastName>
-            <email>alice.williams@example.com</email>
-            <passwordHash>OAIEHFOAANOFOEAOBobaoebfoeb</passwordHash>
+            <Id>22aae2e8-2409-4c7f-b0c5-65422aa7e6db</Id>
+            <UserName>alice.williams@example.com</UserName>
+            <Email>alice.williams@example.com</Email>
+            <EmailConfirmed>false</EmailConfirmed>
+            <PasswordHash>hashedpassword</PasswordHash>
+            <SecurityStamp>02bdee4c-4283-4bc1-9097-179cfe88f38f</SecurityStamp>
+            <ConcurrencyStamp>9bd7bdc8-26e4-4dfc-981b-7cb7018f5183</ConcurrencyStamp>
+            <PhoneNumberConfirmed>false</PhoneNumberConfirmed>
+            <TwoFactorEnabled>false</TwoFactorEnabled>
+            <LockoutEnd xsi:nil="true" />
+            <LockoutEnabled>false</LockoutEnabled>
+            <AccessFailedCount>0</AccessFailedCount>
+            <FirstName>Alice</FirstName>
+            <LastName>Williams</LastName>
         </patient>
     </patients>
 </data>

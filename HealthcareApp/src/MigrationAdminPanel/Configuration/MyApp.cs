@@ -4,7 +4,6 @@ namespace MigrationAdminPanel.Configuration;
 
 public class MyApp
 {
-    
     private readonly JsonMigrationsService _jsonMigrator;
     private readonly XmlMigrationsService _xmlMigrator;
 
@@ -17,7 +16,15 @@ public class MyApp
 
     public async Task Run()
     {
-       // await _jsonMigrator.MigrateData("/Users/vladmakarenko/Desktop/Dotnet Mentorship/HealthcareApp/src/MigrationAdminPanel/Data/sampleData.json");
-        await _xmlMigrator.MigrateData("/Users/vladmakarenko/Desktop/Dotnet Mentorship/HealthcareApp/src/MigrationAdminPanel/Data/sampleData.xml");
+        string baseDirectory = AppContext.BaseDirectory;
+        
+        string jsonFilePath = Path.Combine(baseDirectory, "..", "..", "..", "Data", "sampleData.json");
+        string xmlFilePath = Path.Combine(baseDirectory, "..", "..", "..", "Data", "sampleData.xml");
+        
+        jsonFilePath = Path.GetFullPath(jsonFilePath);
+        xmlFilePath = Path.GetFullPath(xmlFilePath);
+
+        await _jsonMigrator.MigrateData(jsonFilePath);
+        await _xmlMigrator.MigrateData(xmlFilePath);
     }
 }
