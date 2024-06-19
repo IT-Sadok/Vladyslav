@@ -24,43 +24,42 @@ public class UserManagerDecorator<TUser> : IUserManagerDecorator<TUser> where TU
     public async Task MigrateRangeAsync(List<ApplicationUser> patients, List<ApplicationUser> doctors)
     {
         var allUsers = patients.Concat(doctors);
-        string sqlQuery = $@"
-        INSERT INTO AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, FirstName, LastName, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount)
-        VALUES ";
-
-        List<string> valuePlaceholders = new List<string>();
-        List<object> parameters = new List<object>();
-        int index = 0;
+        List<object[]> userParameters = new List<object[]>();
 
         foreach (var user in allUsers)
         {
-            valuePlaceholders.Add(
-                $"(@p{index}, @p{index + 1}, @p{index + 2}, @p{index + 3}, @p{index + 4}, @p{index + 5}, @p{index + 6}, @p{index + 7}, @p{index + 8}, @p{index + 9}, @p{index + 10}, @p{index + 11}, @p{index + 12}, @p{index + 13}, @p{index + 14}, @p{index + 15}, @p{index + 16})");
+            var userParams = new object[]
+            {
+                user.Id,
+                user.Email ?? "",
+                (user.Email ?? "").ToUpper(),
+                user.Email ?? "",
+                (user.Email ?? "").ToUpper(),
+                user.EmailConfirmed,
+                user.FirstName,
+                user.LastName,
+                user.PasswordHash ?? "",
+                user.SecurityStamp ?? "",
+                user.ConcurrencyStamp ?? "",
+                user.PhoneNumber ?? "",
+                user.PhoneNumberConfirmed,
+                user.TwoFactorEnabled,
+                user.LockoutEnd ?? new DateTimeOffset(),
+                user.LockoutEnabled,
+                user.AccessFailedCount
+            };
 
-            parameters.Add(user.Id);
-            parameters.Add(user.Email ?? "");
-            parameters.Add(user.Email?.ToUpper() ?? "");
-            parameters.Add(user.Email ?? "");
-            parameters.Add(user.Email?.ToUpper() ?? "");
-            parameters.Add(user.EmailConfirmed);
-            parameters.Add(user.FirstName);
-            parameters.Add(user.LastName);
-            parameters.Add(user.PasswordHash ?? "");
-            parameters.Add(user.SecurityStamp ?? "");
-            parameters.Add(user.ConcurrencyStamp ?? "");
-            parameters.Add(user.PhoneNumber ?? "");
-            parameters.Add(user.PhoneNumberConfirmed);
-            parameters.Add(user.TwoFactorEnabled);
-            parameters.Add(user.LockoutEnd ?? new DateTimeOffset());
-            parameters.Add(user.LockoutEnabled);
-            parameters.Add(user.AccessFailedCount);
-
-            index += 17;
+            userParameters.Add(userParams);
         }
 
-        sqlQuery += string.Join(", ", valuePlaceholders);
-        
-        await _context.Database.ExecuteSqlRawAsync(sqlQuery, parameters.ToArray());
+        foreach (var userParams in userParameters)
+        {
+            string insertStatement = $@"
+        INSERT INTO AspNetUsers (Id, UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, FirstName, LastName, PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount)
+        VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16)";
+
+            await _context.Database.ExecuteSqlRawAsync(insertStatement, userParams);
+        }
     }
 
     public Task<TUser?> FindByEmailAsync(string email) => _userManager.FindByEmailAsync(email);

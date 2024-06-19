@@ -1,3 +1,4 @@
+using Application.Abstractions;
 using Application.Abstractions.Decorators;
 using Domain.Constants;
 using Domain.Entities;
@@ -7,10 +8,12 @@ namespace MigrationAdminPanel.Abstractions
     public abstract class MigrationsService
     {
         protected readonly IUserManagerDecorator<ApplicationUser> UserManager;
-        
-        protected MigrationsService(IUserManagerDecorator<ApplicationUser> userManager)
+        private readonly IScheduleRepository _repository;
+
+        protected MigrationsService(IUserManagerDecorator<ApplicationUser> userManager, IScheduleRepository repository)
         {
             UserManager = userManager;
+            _repository = repository;
         }
 
         public async Task MigrateData(string path)
@@ -18,7 +21,7 @@ namespace MigrationAdminPanel.Abstractions
             try
             {
                 var data = await ReadDataFromFile(path);
-                
+
                 if (data == null)
                 {
                     Console.WriteLine("Deserialization failed, migrationsData is null.");
@@ -39,6 +42,9 @@ namespace MigrationAdminPanel.Abstractions
                 {
                     doctor.UserName = doctor.Email;
                     await UserManager.AddToRoleAsync(doctor, UserRolesConstants.Doctor);
+                    
+                    var workingHours = DefaultWorkingHours.CreateWorkingHours(doctor.Id).ToList();
+                    await _repository.CreateDefaultWorkingScheduleAsync(workingHours);
                 }
 
                 await MigrateAdditionalData(data);

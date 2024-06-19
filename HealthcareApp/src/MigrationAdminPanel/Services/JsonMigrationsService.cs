@@ -11,8 +11,9 @@ namespace MigrationAdminPanel.Services
     {
         private readonly IAppointmentRepository _appointmentRepository;
 
-        public JsonMigrationsService(IUserManagerDecorator<ApplicationUser> userManager, IAppointmentRepository appointmentRepository)
-            : base(userManager)
+        public JsonMigrationsService(IUserManagerDecorator<ApplicationUser> userManager,
+            IAppointmentRepository appointmentRepository, IScheduleRepository scheduleRepository)
+            : base(userManager, scheduleRepository)
         {
             _appointmentRepository = appointmentRepository;
         }

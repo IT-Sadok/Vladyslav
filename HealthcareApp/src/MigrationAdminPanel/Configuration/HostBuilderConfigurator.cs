@@ -38,6 +38,8 @@ public class HostBuilderConfigurator
                 // Register Repository
                 services.AddScoped<IUserManagerDecorator<ApplicationUser>, UserManagerDecorator<ApplicationUser>>();
                 services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+                services.AddScoped<IScheduleRepository, ScheduleRepository>();
+
 
                 
                 services.AddTransient<JsonMigrationsService>();
