@@ -8,44 +8,38 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using MigrationAdminPanel.Services;
 
-namespace MigrationAdminPanel.Configuration;
-
-public class HostBuilderConfigurator
+namespace MigrationAdminPanel.Configuration
 {
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureServices((context, services) =>
-            {
-                var builder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: false);
-                
-                IConfiguration config = builder.Build();
-                
-                // Register DbContext with a connection string
-                services.AddDbContext<AppDbContext>(options =>
+    public class HostBuilderConfigurator
+    {
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((context, services) =>
                 {
-                    options.UseSqlServer(config.GetConnectionString("HealthcareDb"));
-                    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                    IConfiguration config = context.Configuration;
+
+                    // Register DbContext with a connection string
+                    services.AddDbContext<AppDbContext>(options =>
+                        options.UseSqlServer(config.GetConnectionString("HealthcareDb")));
+
+                    services.AddIdentity<ApplicationUser, IdentityRole>()
+                        .AddEntityFrameworkStores<AppDbContext>()
+                        .AddDefaultTokenProviders();
+
+                    // Register Repository
+                    services.AddScoped<IUserManagerDecorator<ApplicationUser>, UserManagerDecorator<ApplicationUser>>();
+                    services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+                    services.AddScoped<IScheduleRepository, ScheduleRepository>();
+                    services.AddScoped<IMigrationsRepository, MigrationsRepository>();
+
+                    // Register Services
+                    services.AddTransient<JsonMigrationsService>();
+                    services.AddTransient<XmlMigrationsService>();
+
+                    // Register MyApp
+                    services.AddTransient<MyApp>();
                 });
-                services.AddIdentity<ApplicationUser, IdentityRole>()
-                    .AddEntityFrameworkStores<AppDbContext>()
-                    .AddDefaultTokenProviders();
-
-                // Register Repository
-                services.AddScoped<IUserManagerDecorator<ApplicationUser>, UserManagerDecorator<ApplicationUser>>();
-                services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-                services.AddScoped<IScheduleRepository, ScheduleRepository>();
-
-
-                
-                services.AddTransient<JsonMigrationsService>();
-                services.AddTransient<XmlMigrationsService>();
-
-                
-                services.AddTransient<MyApp>();
-            });
+    }
 }

@@ -54,10 +54,4 @@ public class AppointmentRepository : IAppointmentRepository
 
         return existingAppointment == null;
     }
-
-    public async Task MigrateRangeAsync(List<Appointment> appointments)
-    {
-        await _appDbContext.Appointments.AddRangeAsync(appointments);
-        await _appDbContext.SaveChangesAsync();
-    }
 }

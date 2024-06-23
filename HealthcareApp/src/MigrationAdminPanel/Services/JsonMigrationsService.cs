@@ -9,13 +9,12 @@ namespace MigrationAdminPanel.Services
 {
     public class JsonMigrationsService : MigrationsService
     {
-        private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IMigrationsRepository _repository;
 
-        public JsonMigrationsService(IUserManagerDecorator<ApplicationUser> userManager,
-            IAppointmentRepository appointmentRepository, IScheduleRepository scheduleRepository)
-            : base(userManager, scheduleRepository)
+        public JsonMigrationsService(IMigrationsRepository repository)
+            : base(repository)
         {
-            _appointmentRepository = appointmentRepository;
+            _repository = repository;
         }
 
         protected override async Task<object?> ReadDataFromFile(string path)
@@ -30,11 +29,10 @@ namespace MigrationAdminPanel.Services
             return (migrationsData.Patients, migrationsData.Doctors);
         }
 
-        protected override async Task MigrateAdditionalData(object data)
+        protected override List<Appointment>? ExtractAdditionalData(object data)
         {
             var migrationsData = (JsonMigrationsData)data;
-            var appointments = migrationsData.Appointments;
-            await _appointmentRepository.MigrateRangeAsync(appointments);
+            return migrationsData.Appointments;
         }
     }
 }

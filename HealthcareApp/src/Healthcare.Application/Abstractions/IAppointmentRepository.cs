@@ -11,5 +11,4 @@ public interface IAppointmentRepository
     Task<Appointment?> GetByIdAsync(int appointmentId);
     Task ChangeStatusAsync(int appointmentId, AppointmentStatuses status);
     Task<bool> IsAvailableAsync(string doctorId, DateTime date, TimeSpan startTime);
-    Task MigrateRangeAsync(List<Appointment> appointments);
 }

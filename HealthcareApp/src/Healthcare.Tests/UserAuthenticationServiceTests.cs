@@ -19,28 +19,27 @@ public class UserAuthenticationServiceTests
     private readonly Mock<ISignInManagerDecorator<ApplicationUser>> _signInManagerMock;
     private readonly Mock<IRoleManagerDecorator<IdentityRole>> _roleManagerMock;
     private readonly Mock<ITokenGeneratorService> _generatorService;
+    private readonly Mock<IMapper> _mapper;
+    private readonly Mock<IMediator> _mediator;
     private readonly AuthenticationService _authService;
-    private readonly IMapper _mapper;
-    private readonly IMediator _mediator;
 
 
-
-    public UserAuthenticationServiceTests(IMapper mapper, IMediator mediator)
+    public UserAuthenticationServiceTests()
     {
-        _mapper = mapper;
-        _mediator = mediator;
         _userManagerMock = new Mock<IUserManagerDecorator<ApplicationUser>>();
         _signInManagerMock = new Mock<ISignInManagerDecorator<ApplicationUser>>();
         _roleManagerMock = new Mock<IRoleManagerDecorator<IdentityRole>>();
         _generatorService = new Mock<ITokenGeneratorService>();
+        _mapper = new Mock<IMapper>();
+        _mediator = new Mock<IMediator>();
         
 
         _authService = new AuthenticationService(
             _userManagerMock.Object,
             _signInManagerMock.Object, 
             _generatorService.Object,
-            _mapper,
-            _mediator);
+            _mapper.Object,
+            _mediator.Object);
     }
 
     [Fact]

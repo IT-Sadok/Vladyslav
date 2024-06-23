@@ -1,19 +1,15 @@
 using Application.Abstractions;
-using Application.Abstractions.Decorators;
-using Domain.Constants;
 using Domain.Entities;
 
 namespace MigrationAdminPanel.Abstractions
 {
     public abstract class MigrationsService
     {
-        protected readonly IUserManagerDecorator<ApplicationUser> UserManager;
-        private readonly IScheduleRepository _repository;
+        private readonly IMigrationsRepository _migrationsRepository;
 
-        protected MigrationsService(IUserManagerDecorator<ApplicationUser> userManager, IScheduleRepository repository)
+        protected MigrationsService(IMigrationsRepository migrationsRepository)
         {
-            UserManager = userManager;
-            _repository = repository;
+            _migrationsRepository = migrationsRepository;
         }
 
         public async Task MigrateData(string path)
@@ -30,24 +26,9 @@ namespace MigrationAdminPanel.Abstractions
 
                 var (patients, doctors) = ExtractUserData(data);
 
-                await UserManager.MigrateRangeAsync(patients, doctors);
+                var appointments = ExtractAdditionalData(data);
 
-                foreach (var patient in patients)
-                {
-                    patient.UserName = patient.Email;
-                    await UserManager.AddToRoleAsync(patient, UserRolesConstants.Patient);
-                }
-
-                foreach (var doctor in doctors)
-                {
-                    doctor.UserName = doctor.Email;
-                    await UserManager.AddToRoleAsync(doctor, UserRolesConstants.Doctor);
-                    
-                    var workingHours = DefaultWorkingHours.CreateWorkingHours(doctor.Id).ToList();
-                    await _repository.CreateDefaultWorkingScheduleAsync(workingHours);
-                }
-
-                await MigrateAdditionalData(data);
+                await _migrationsRepository.MigrateRangeAsync(patients, doctors, appointments);
             }
             catch (Exception ex)
             {
@@ -57,6 +38,6 @@ namespace MigrationAdminPanel.Abstractions
 
         protected abstract Task<object?> ReadDataFromFile(string path);
         protected abstract (List<ApplicationUser> patients, List<ApplicationUser> doctors) ExtractUserData(object data);
-        protected virtual Task MigrateAdditionalData(object data) => Task.CompletedTask;
+        protected abstract List<Appointment>? ExtractAdditionalData(object data);
     }
 }

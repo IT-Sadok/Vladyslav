@@ -9,10 +9,11 @@ public static class DefaultWorkingHours
         var workingHours = new List<Schedule>();
         var startTime = new TimeSpan(8, 0, 0);
         var endTime = new TimeSpan(16, 0, 0);
+        var startOfWeek = (int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday;
 
         for (int i = 0; i < 5; i++)
         {
-            var date = DateTime.Today.AddDays(i - (int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+            var date = DateTime.Today.AddDays(i - startOfWeek);
             workingHours.Add(new Schedule
             {
                 DoctorId = doctorId,

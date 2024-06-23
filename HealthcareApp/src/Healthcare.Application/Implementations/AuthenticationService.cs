@@ -42,7 +42,6 @@ public class AuthenticationService : IUserAuthenticationService
         }
 
         var user = _mapper.Map<ApplicationUser>(registerUserDto);
-        user.Id = Guid.NewGuid().ToString();
 
         var result = await _userManager.CreateAsync(user, registerUserDto.Password);
         

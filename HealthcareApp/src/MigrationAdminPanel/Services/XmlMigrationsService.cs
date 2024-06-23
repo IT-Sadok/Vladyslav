@@ -9,8 +9,13 @@ namespace MigrationAdminPanel.Services
 {
     public class XmlMigrationsService : MigrationsService
     {
-        public XmlMigrationsService(IUserManagerDecorator<ApplicationUser> userManager, IScheduleRepository scheduleRepository)
-            : base(userManager, scheduleRepository) { }
+        private readonly IMigrationsRepository _repository;
+
+        public XmlMigrationsService(IMigrationsRepository repository)
+            : base(repository)
+        {
+            _repository = repository;
+        }
 
         protected override async Task<object?> ReadDataFromFile(string path)
         {
@@ -34,5 +39,7 @@ namespace MigrationAdminPanel.Services
             var migrationsData = (XmlMigrationsData)data;
             return (migrationsData.Patients, migrationsData.Doctors);
         }
+
+        protected override List<Appointment>? ExtractAdditionalData(object data) => null;
     }
 }

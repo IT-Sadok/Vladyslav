@@ -13,8 +13,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Schedule> Schedules { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
 
-    public int? DatePart(string datePartArg, DateTime? date) => throw new Exception();
-
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
@@ -40,22 +38,5 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(s => s.DoctorId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        var methodInfo =
-            typeof(AppDbContext).GetRuntimeMethod(nameof(DatePart), new[] { typeof(string), typeof(DateTime) });
-        modelBuilder
-            .HasDbFunction(methodInfo!)
-            .HasTranslation(args => new SqlFunctionExpression(nameof(DatePart),
-                    new[]
-                    {
-                        new SqlFragmentExpression(((SqlConstantExpression)args[0]).Value.ToString()),
-                        args[1]
-                    },
-                    false,
-                    new List<bool>() { false, false, false },
-                    typeof(int?),
-                    null
-                )
-            );
     }
 }
