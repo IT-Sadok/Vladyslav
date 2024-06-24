@@ -2,8 +2,9 @@ using Application.Abstractions;
 using Application.Abstractions.Decorators;
 using Domain.Constants;
 using Domain.Entities;
+using Domain.Extensions;
 using Healthcare.Infrastructure.Persistance;
-using Microsoft.AspNetCore.Identity;
+
 
 namespace Infrastructure.Repository;
 
@@ -31,8 +32,20 @@ public class MigrationsRepository : IMigrationsRepository
             await _context.Users.AddRangeAsync(patients);
             await _context.Users.AddRangeAsync(doctors);
 
+            
             if (appointments != null)
-                await _context.Appointments.AddRangeAsync(appointments);
+            {
+                const int batchSize = 100; // Adjust batch size as needed
+                foreach (var batch in appointments.Batch(batchSize))
+                {
+                    await _context.Appointments.AddRangeAsync(batch);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                await _context.SaveChangesAsync();
+            }
             
             await _context.SaveChangesAsync();
 
