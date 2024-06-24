@@ -17,7 +17,7 @@ public class UserRegisteredNotificationHandler : INotificationHandler<UserRegist
     {
         if (notification.Role == UserRolesConstants.Doctor)
         {
-            var workingHours = DefaultWorkingHours.Schedules.ToList();
+            var workingHours = DefaultWorkingHours.CreateWorkingHours(notification.UserId).ToList();
             await _repository.CreateDefaultWorkingScheduleAsync(workingHours);
         }
     }

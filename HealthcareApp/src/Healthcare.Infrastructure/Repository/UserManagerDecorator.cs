@@ -1,13 +1,13 @@
 using Application.Abstractions.Decorators;
-using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
 public class UserManagerDecorator<TUser> : IUserManagerDecorator<TUser> where TUser : class
 {
     private readonly UserManager<TUser> _userManager;
+    
+
 
     public UserManagerDecorator(UserManager<TUser> userManager)
     {
