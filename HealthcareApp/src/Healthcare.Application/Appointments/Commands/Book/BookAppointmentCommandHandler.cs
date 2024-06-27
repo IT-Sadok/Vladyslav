@@ -37,6 +37,7 @@ public class BookAppointmentCommandHandler : IRequestHandler<BookAppointmentComm
         
         var appointment = _mapper.Map<Appointment>(request);
         appointment.EndTime = request.StartTime.Add(TimeSpan.FromMinutes(15));
+        appointment.DurationMinutes = (int)(appointment.EndTime - appointment.StartTime).TotalMinutes;
 
         try
         {

@@ -1,13 +1,13 @@
-using System.Collections.Immutable;
 using System.Text;
 using Application.Abstractions;
+using Application.Abstractions.Dapper;
 using Application.Abstractions.Decorators;
 using Domain.Entities;
 using Healthcare.Infrastructure.Persistance;
 using Infrastructure.Configuration;
 using Infrastructure.Repository;
+using Infrastructure.Repository.Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -52,10 +52,12 @@ public static class DependencyInjection
 
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+        services.AddScoped<IMetricsRepository, MetricsRepository>();
         services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
         services.AddScoped<IUserManagerDecorator<ApplicationUser>, UserManagerDecorator<ApplicationUser>>();
         services.AddScoped<ISignInManagerDecorator<ApplicationUser>, SignInManagerDecorator<ApplicationUser>>();
         services.AddScoped<IRoleManagerDecorator<IdentityRole>, RoleManagerDecorator<IdentityRole>>();
+        services.AddScoped<SqlConnectionFactory>();
 
         
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.Jwt));

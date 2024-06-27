@@ -24,7 +24,8 @@
       "appointmentDate": "2023-06-01T08:00:00",
       "startTime": "08:00:00",
       "endTime": "08:15:00",
-      "status": "1"
+      "status": "1",
+      "durationMinutes": 15
     }
   ]
 }
