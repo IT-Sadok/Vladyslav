@@ -6,11 +6,11 @@ public interface IMetricsRepository
 {
     Task<long> GetUsersCountByRoleAsync(int roleId);
     
-    Task<List<object>> GetDoctorsWithAppointments();
+    Task<long> GetDoctorsAppointmentsCountAsync(string doctorId, DateTime? fromDate, DateTime? toDate);
     
-    Task<long> GetDoctorAppointmentsCount(string doctorId);
+    Task<long> GetDoctorsAppointmentsCountAsync(string doctorId);
 
-    Task<float> GetMedianOfDurationTime();
+    Task<float> GetMedianOfDurationTimeAsync();
     
-    Task<float> GetVarianceOfDurationTime();
+    Task<float> GetVarianceOfDurationTimeAsync();
 }

@@ -15,7 +15,14 @@ internal class GetDoctorAppointmentsCountQueryHandler : IRequestHandler<GetDocto
     
     public async Task<Result<long>> Handle(GetDoctorAppointmentsCountQuery request, CancellationToken cancellationToken)
     {
-        var result = await _repository.GetDoctorAppointmentsCount(request.DoctorId);
+        long result = 0;
+        if (request is { FromDate: not null, ToDate: not null })
+        {
+            result = await _repository.GetDoctorsAppointmentsCountAsync(request.DoctorId, request.FromDate, request.ToDate);
+            return Result<long>.Success(result);
+        }
+        
+        result = await _repository.GetDoctorsAppointmentsCountAsync(request.DoctorId);
         return Result<long>.Success(result);
     }
 }

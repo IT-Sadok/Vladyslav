@@ -23,6 +23,7 @@ public class UpsertAppointmentCommandHandler : IRequestHandler<UpsertAppointment
         try
         {
             var appointment = _mapper.Map<Appointment>(request);
+            appointment.DurationMinutes = (int)(appointment.EndTime - appointment.StartTime).TotalMinutes;
             await _repository.UpsertAppointmentAsync(appointment);
             return Result<string>.Success();
         }

@@ -4,8 +4,8 @@ using Domain.Constants;
 using Domain.Entities;
 using Healthcare.Application.DTOs.Appointment;
 using Healthcare.Infrastructure.Persistance;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using static Healthcare.Infrastructure.Persistance.SqlCommands;
 
 namespace Infrastructure.Repository;
 
@@ -67,26 +67,8 @@ public class AppointmentRepository : IAppointmentRepository
     {
         using var sqlConnection = _dbConnectionFactory.CreateDbConnection();
 
-        const string query = """
-                                         MERGE INTO Appointments AS target
-                                         USING (SELECT @Id AS Id) AS source
-                                         ON (target.Id = source.Id)
-                                         WHEN MATCHED THEN 
-                                             UPDATE SET 
-                                                 DoctorId = @DoctorId,
-                                                 PatientId = @PatientId,
-                                                 AppointmentDate = @AppointmentDate,
-                                                 StartTime = @StartTime,
-                                                 EndTime = @EndTime,
-                                                 Status = @Status,
-                                                 DurationMinutes = @DurationMinutes
-                                         WHEN NOT MATCHED THEN
-                                             INSERT (DoctorId, PatientId, AppointmentDate, StartTime, EndTime, Status, DurationMinutes)
-                                             VALUES (@DoctorId, @PatientId, @AppointmentDate, @StartTime, @EndTime, @Status, @DurationMinutes);
-                             """;
-
-
-        appointment.DurationMinutes = (int)(appointment.EndTime - appointment.StartTime).TotalMinutes;
+        const string query = UpsertAppointment;
+        
         await sqlConnection.ExecuteAsync(query, appointment);
     }
 }

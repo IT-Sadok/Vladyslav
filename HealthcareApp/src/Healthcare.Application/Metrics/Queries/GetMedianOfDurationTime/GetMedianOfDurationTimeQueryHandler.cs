@@ -14,7 +14,7 @@ public class GetMedianOfDurationTimeQueryHandler : IRequestHandler<GetMedianOfDu
     }
     public async Task<Result<float>> Handle(GetMedianOfDurationTimeQuery request, CancellationToken cancellationToken)
     {
-        var median = await _repository.GetMedianOfDurationTime();
+        var median = await _repository.GetMedianOfDurationTimeAsync();
         return Result<float>.Success(median);
     }
 }

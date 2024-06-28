@@ -1,7 +1,8 @@
-using System.Text.RegularExpressions;
 using Application.Abstractions.Dapper;
 using Dapper;
 using Healthcare.Infrastructure.Persistance;
+using static Healthcare.Infrastructure.Persistance.SqlCommands;
+
 
 namespace Infrastructure.Repository.Dapper;
 
@@ -17,60 +18,44 @@ public class MetricsRepository : IMetricsRepository
     public async Task<long> GetUsersCountByRoleAsync(int roleId)
     {
         using var sqlConnection = _dbConnectionFactory.CreateDbConnection();
-        const string query = """
-                             SELECT COUNT(*)
-                             FROM AspNetUserRoles
-                             WHERE RoleId = @RoleId
-                             GROUP BY RoleId
-                             """;
+        const string query = GetUsersCountByRole;
 
         return await sqlConnection.QueryFirstOrDefaultAsync<long>(query, new { RoleId = roleId });
     }
 
-    public async Task<List<object>> GetDoctorsWithAppointments()
+    public async Task<long> GetDoctorsAppointmentsCountAsync(string doctorId, DateTime? fromDate, DateTime? toDate)
     {
         using var sqlConnection = _dbConnectionFactory.CreateDbConnection();
-        const string query = """
-                             SELECT AspNetUsers.FirstName, AspNetUsers.LastName, Appointments.Id AS AppointmentId, Appointments.AppointmentDate
-                             FROM Appointments
-                             INNER JOIN AspNetUsers ON AspNetUsers.Id = Appointments.DoctorId;
-                             """;
-        var result = await sqlConnection.QueryAsync<object>(query);
-        return result.ToList();
+        const string query = GetDoctorsAppointmentsCountByTimeRange;
+        return await sqlConnection.QueryFirstOrDefaultAsync<long>(query, new
+        {
+            DoctorId = doctorId,
+            FromDate = fromDate,
+            ToDate = toDate
+        });
     }
 
-    public async Task<long> GetDoctorAppointmentsCount(string doctorId)
+    public async Task<long> GetDoctorsAppointmentsCountAsync(string doctorId)
     {
         using var sqlConnection = _dbConnectionFactory.CreateDbConnection();
-        const string query = """
-                             SELECT COUNT(*), Appointments.DoctorId
-                             FROM Appointments
-                             GROUP BY Appointments.DoctorId
-                             HAVING DoctorId=@DoctorId;
-                             """;
+        const string query = GetDoctorAppointmentsCount;
 
         return await sqlConnection.QueryFirstOrDefaultAsync<long>(query, new { DoctorId = doctorId });
     }
 
-    public async Task<float> GetMedianOfDurationTime()
+    public async Task<float> GetMedianOfDurationTimeAsync()
     {
         using var sqlConnection = _dbConnectionFactory.CreateDbConnection();
-        const string query = """
-                             SELECT 
-                                 DISTINCT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY DurationMinutes) 
-                                 OVER () AS MedianValue
-                             FROM Appointments;
-                             """;
+        const string query = GetMedianOfDurationTime;
+        
         return await sqlConnection.QueryFirstOrDefaultAsync<float>(query);
     }
 
-    public async Task<float> GetVarianceOfDurationTime()
+    public async Task<float> GetVarianceOfDurationTimeAsync()
     {
         using var sqlConnection = _dbConnectionFactory.CreateDbConnection();
-        const string query = """
-                             SELECT VAR(DurationMinutes) AS DurationVariance
-                             FROM Appointments;
-                             """;
+        const string query = GetVarianceOfDurationTime;
+        
         return await sqlConnection.QueryFirstOrDefaultAsync<float>(query);
     }
 }

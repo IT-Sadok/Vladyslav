@@ -1,5 +1,4 @@
 using Healthcare.Application.Metrics.Queries.GetDoctorAppointmentsCount;
-using Healthcare.Application.Metrics.Queries.GetDoctorsWithAppointments;
 using Healthcare.Application.Metrics.Queries.GetMedianOfDurationTime;
 using Healthcare.Application.Metrics.Queries.GetUsersCountByRole;
 using Healthcare.Application.Metrics.Queries.GetVarianceOfDurationTime;
@@ -17,35 +16,38 @@ public class MetricsController : Controller
     {
         _mediator = mediator;
     }
-    
+
     [HttpGet("get-user-count-by-role/{roleId:int}")]
-    public async Task<IActionResult> GetUserCountByRole (int roleId)
+    public async Task<IActionResult> GetUserCountByRole(int roleId)
     {
         var result = await _mediator.Send(new GetUsersCountByRoleQuery(roleId));
         return Ok(result);
     }
-    
-    [HttpGet("get-doctors-with-appointments")]
-    public async Task<IActionResult> GetDoctorsWithAppointments ()
-    {
-        var result = await _mediator.Send(new GetDoctorsWithAppointmentsQuery());
-        return Ok(result);
-    }
-    
+
     [HttpGet("get-doctor-appointments-count/{doctorId}")]
-    public async Task<IActionResult> GetDoctorAppointmentsCount (string doctorId)
+    public async Task<IActionResult> GetDoctorAppointmentsCount(string doctorId)
     {
         var result = await _mediator.Send(new GetDoctorAppointmentsCountQuery(doctorId));
         return Ok(result);
     }
+
+    [HttpGet("get-doctor-appointments-count-by-time-range/{doctorId}")]
+    public async Task<IActionResult> GetDoctorAppointmentsCount(string doctorId, [FromQuery] DateTime fromDate,
+        DateTime toDate)
+    {
+        var result = await _mediator.Send(new GetDoctorAppointmentsCountQuery(doctorId, fromDate, toDate));
+        return Ok(result);
+    }
+
     [HttpGet("get-median-of-duration-time")]
-    public async Task<IActionResult> GetMedian ()
+    public async Task<IActionResult> GetMedian()
     {
         var result = await _mediator.Send(new GetMedianOfDurationTimeQuery());
         return Ok(result);
     }
+
     [HttpGet("get-variance-of-duration-time")]
-    public async Task<IActionResult> GetVariance ()
+    public async Task<IActionResult> GetVariance()
     {
         var result = await _mediator.Send(new GetVarianceOfDurationTimeQuery());
         return Ok(result);

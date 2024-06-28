@@ -15,7 +15,7 @@ public class GetVarianceOfDurationTimeQueryHandler : IRequestHandler<GetVariance
 
     public async Task<Result<float>> Handle(GetVarianceOfDurationTimeQuery request, CancellationToken cancellationToken)
     {
-        var variance = await _repository.GetVarianceOfDurationTime();
+        var variance = await _repository.GetVarianceOfDurationTimeAsync();
         return Result<float>.Success(variance);
     }
 }
