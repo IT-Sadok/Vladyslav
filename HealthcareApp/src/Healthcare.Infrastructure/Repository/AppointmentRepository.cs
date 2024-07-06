@@ -1,17 +1,25 @@
 using Application.Abstractions;
+using Dapper;
 using Domain.Constants;
 using Domain.Entities;
 using Healthcare.Application.DTOs.Appointment;
 using Healthcare.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
+using static Healthcare.Infrastructure.Persistance.SqlCommands;
 
 namespace Infrastructure.Repository;
 
 public class AppointmentRepository : IAppointmentRepository
 {
     private readonly AppDbContext _appDbContext;
+    private readonly SqlConnectionFactory _dbConnectionFactory;
 
-    public AppointmentRepository(AppDbContext appDbContext) => _appDbContext = appDbContext;
+
+    public AppointmentRepository(AppDbContext appDbContext, SqlConnectionFactory dbConnectionFactory)
+    {
+        _appDbContext = appDbContext;
+        _dbConnectionFactory = dbConnectionFactory;
+    }
 
     public async Task RequestAppointmentAsync(Appointment appointment)
     {
@@ -46,12 +54,21 @@ public class AppointmentRepository : IAppointmentRepository
     {
         var endTime = startTime.Add(TimeSpan.FromMinutes(15));
 
-        var existingAppointment = await _appDbContext.Appointments.SingleOrDefaultAsync( a =>
+        var existingAppointment = await _appDbContext.Appointments.SingleOrDefaultAsync(a =>
             a.DoctorId == doctorId &&
             a.AppointmentDate == date &&
             ((a.StartTime <= startTime && a.EndTime > startTime) ||
              (a.StartTime < endTime && a.EndTime >= endTime)));
 
         return existingAppointment == null;
+    }
+
+    public async Task UpsertAppointmentAsync(Appointment appointment)
+    {
+        using var sqlConnection = _dbConnectionFactory.CreateDbConnection();
+
+        const string query = UpsertAppointment;
+        
+        await sqlConnection.ExecuteAsync(query, appointment);
     }
 }

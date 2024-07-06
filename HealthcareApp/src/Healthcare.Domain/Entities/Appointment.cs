@@ -17,4 +17,6 @@ public class Appointment
     public TimeSpan EndTime { get; set; }
     
     public AppointmentStatuses Status { get; set; }
+    
+    public int DurationMinutes { get; set; }
 }

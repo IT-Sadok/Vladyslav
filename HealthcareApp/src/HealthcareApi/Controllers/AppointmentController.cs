@@ -2,6 +2,7 @@ using Domain.Constants;
 using Healthcare.Application.Appointments.Commands.Book;
 using Healthcare.Application.Appointments.Commands.Complete;
 using Healthcare.Application.Appointments.Commands.Reject;
+using Healthcare.Application.Appointments.Commands.Upsert;
 using Healthcare.Application.Appointments.Queries;
 using Healthcare.Application.DTOs.Result;
 using Healthcare.Appointments.Commands.Submit;
@@ -64,5 +65,13 @@ public class AppointmentController : Controller
     {
         var result = await _mediator.Send(command);
         return result.ToActionResult("Appointment has been successfully completed");
+    }
+    
+    [HttpPost("upsert")]
+    [Authorize]
+    public async Task<IActionResult> UpsertAppointment( [FromBody] UpsertAppointmentCommand command)
+    {
+        var result = await _mediator.Send(command);
+        return result.ToActionResult("Appointment has been either successfully updated or created");
     }
 }
