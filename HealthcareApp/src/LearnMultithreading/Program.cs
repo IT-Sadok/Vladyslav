@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Domain.Entities;
+using LearnMultithreading.AsyncExamples;
 using LearnMultithreading.Operations;
 using LearnMultithreading.SynchronizationPrimitives;
 using static LearnMultithreading.AsyncExamples.AsyncExamples;
@@ -33,6 +34,23 @@ foreach (var thread in threads)
 
 Console.WriteLine($"LockExample: {lockExample.GetAppointments().Count} appointments added.");
 
+// ReaderWriterLockSlim example
+var readerWriterLockSlimExample = new ReaderWriterLockSlimExample();
+threads.Clear();
+for (int i = 0; i < 3; i++)
+{
+    var appointment = new Appointment
+        { Id = i, DoctorId = "Doc3", PatientId = $"Pat{i}", AppointmentDate = DateTime.Now };
+    threads.Add(new Thread(() => readerWriterLockSlimExample.AddAppointment(appointment)));
+    threads[i].Start();
+}
+
+foreach (var thread in threads)
+{
+    thread.Join();
+}
+
+Console.WriteLine($"ReaderWriterLockSlimExample: {readerWriterLockSlimExample.GetAppointments().Count} appointments added.");
 
 // Interlocked example
 var interlockedExample = new InterlockedExample();
@@ -138,13 +156,20 @@ Console.WriteLine("Time required for calculation: " + stopwatch.ElapsedMilliseco
 await ExampleTaskWhenAny();
 
 //ConfigureAwait use case:
-await ExampleConfigureAwait();
+await ExampleConfigureAwait(false); // In this case 2 different threads are used
+
+await ExampleConfigureAwait(true); // And here it is using only one thread
+
 
 //TaskFactory use case:
 await ExampleTaskFactory();
 
 //ContinueWith use case:
 await ExampleContinueWith();
+
+//ValueTask use case example
+var timeSlots = await ValueTaskExample.FetchData();
+Console.WriteLine($"Doctor has {timeSlots.Keys.Count} working days");
 
 // Calling Deadlock:
 object lock1 = new object();

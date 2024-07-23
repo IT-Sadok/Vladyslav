@@ -7,11 +7,11 @@ public static class CpuBoundOperations
         return await Task.Run(() => 
         {
             // Simulate a complex CPU-bound calculation
-            int result = 0;
-            for (int i = 0; i < value * 1000000; i++)
-            {
-                result += i % 3;
-            }
+            int result = Enumerable.Range(0, value * 1000000)
+                .AsParallel()
+                .WithDegreeOfParallelism( Environment.ProcessorCount)
+                .Sum(i => i % 3);
+            
             return result;
         });
     }
