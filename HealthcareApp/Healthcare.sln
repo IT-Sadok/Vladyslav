@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthcareApi", "src\Health
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MigrationAdminPanel", "src\MigrationAdminPanel\MigrationAdminPanel.csproj", "{D5EE29E5-EF99-4460-BAD3-7428F8FB43F1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnMultithreading", "src\LearnMultithreading\LearnMultithreading.csproj", "{856957C4-8D38-483E-B9E7-06C1593D29B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{D5EE29E5-EF99-4460-BAD3-7428F8FB43F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5EE29E5-EF99-4460-BAD3-7428F8FB43F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5EE29E5-EF99-4460-BAD3-7428F8FB43F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{856957C4-8D38-483E-B9E7-06C1593D29B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{856957C4-8D38-483E-B9E7-06C1593D29B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{856957C4-8D38-483E-B9E7-06C1593D29B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{856957C4-8D38-483E-B9E7-06C1593D29B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{8DAB47BD-FE31-4380-8E3C-2F25FA8634B3} = {EEAFE76F-3D9F-4C72-B752-45F602DBE7CA}
 		{92805C45-F2AC-4820-822C-74AF02340774} = {EEAFE76F-3D9F-4C72-B752-45F602DBE7CA}
 		{D5EE29E5-EF99-4460-BAD3-7428F8FB43F1} = {EEAFE76F-3D9F-4C72-B752-45F602DBE7CA}
+		{856957C4-8D38-483E-B9E7-06C1593D29B6} = {EEAFE76F-3D9F-4C72-B752-45F602DBE7CA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {53AFFD96-D4A1-4FF5-89FD-A3908F2381B1}
